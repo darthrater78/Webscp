@@ -2,7 +2,7 @@
 
 A client-side, browser-based file-transfer client with a familiar two-pane
 "commander" layout. The left pane is your **OneDrive**; the right pane is a
-**remote server** over SFTP, FTP, or FTPS. It runs entirely in the browser as a
+**remote server** over SFTP or FTP. It runs entirely in the browser as a
 static PWA — there is no backend of its own; raw TCP for SSH/FTP is relayed
 through the host app's TCP proxy, and OneDrive is accessed via Microsoft Graph.
 
@@ -18,8 +18,8 @@ through the host app's TCP proxy, and OneDrive is accessed via Microsoft Graph.
 - **Two-pane transfers** between OneDrive and a remote server, with drag/drop,
   multi-select, F5, and a live transfer queue showing per-file **throughput and
   elapsed time**.
-- **Protocols:** SFTP (SSH), FTP, and FTPS (explicit TLS). WebDAV and S3 adapters
-  exist in the codebase but are not currently exposed in the connect UI.
+- **Protocols:** SFTP (SSH) and plain FTP. WebDAV and S3 adapters exist in the
+  codebase but are not currently exposed in the connect UI.
 - **From-scratch SSH/SFTP stack:** curve25519 key exchange, ed25519 host-key TOFU
   verification, AES-GCM, publickey/password auth, mid-session **rekey** (so
   multi-GB transfers survive), and **pipelined** transfers for high throughput.
@@ -37,8 +37,67 @@ WebSCP is provided **"AS IS", without warranty of any kind** and **without any
 commitment to support, maintenance, or updates**. Use at your own risk. See the
 [LICENSE](./LICENSE) for the full terms.
 
-It handles credentials and private keys; review the security model before using
-it with sensitive systems, and prefer keys/passphrases you can rotate.
+It handles credentials and private keys; review the
+[security architecture](#security-architecture) before using it with sensitive
+systems, and prefer keys/passphrases you can rotate.
+
+## Security architecture
+
+### Design
+
+- **Where it runs.** WebSCP is a static, client-side PWA with no backend of its
+  own and no user accounts. All protocol code runs in the browser tab.
+- **What is trusted.** The host app and its SDK (`ai-publish-sdk`) are trusted:
+  they relay every raw TCP byte for SSH/FTP and hand the app its OneDrive OAuth
+  token. Remote servers and everything they send (directory listings, file
+  names, protocol replies) are untrusted input.
+- **SFTP / SSH.** A from-scratch SSH client: curve25519 key exchange, ed25519
+  host keys only, AES-GCM. The server's host-key signature is verified on every
+  key exchange (including rekey). Host keys are trust-on-first-use: a new key
+  needs explicit user approval, and a changed key aborts the connection before
+  any prompt or credential is sent (`src/ssh/SshClient.ts`,
+  `src/ssh/knownhosts.ts`).
+- **FTP.** Plain FTP only, passive mode. It is unencrypted: the username,
+  password and files travel in the clear, and the connect dialog says so. FTPS
+  is not supported.
+- **OneDrive.** Accessed over HTTPS via Microsoft Graph. The OAuth token is
+  obtained from the host, held in memory only, and never written to storage.
+- **What is stored, and how.** Everything persistent lives in the browser's
+  `localStorage` for the app's origin:
+
+  | Data | Key | Encrypted at rest |
+  |---|---|---|
+  | Saved-connection secrets (passwords, private keys) | `winscp-connections` | Yes: AES-256-GCM, key derived from the master passphrase with PBKDF2-SHA-256 (600,000 iterations). The key exists only in memory while the vault is unlocked, and the vault auto-locks. |
+  | Vault parameters (salt, iteration count, verifier) | `winscp-vault` | Not needed: contains no secret. The passphrase and derived key are never stored. |
+  | Saved-connection metadata (name, host, port, username) | `winscp-connections` | No: stored in plaintext so the list is readable while the vault is locked. |
+  | Known SSH host-key fingerprints | `winscp-knownhosts` | No: public values. |
+  | Transfer history (file names, paths, sizes) | `winscp-transfers` | No. |
+  | Settings, theme, OneDrive reset flag | `winscp-settings`, `winscp-theme`, `winscp-onedrive-clear-required` | No: not sensitive. |
+
+  A passphrase-protected SSH key is decrypted once and stored decrypted inside
+  the encrypted vault. Anyone who can run script in the app's origin while the
+  vault is unlocked can read its secrets; there is currently no
+  Content-Security-Policy.
+- **Network exposure.** The app listens on nothing. Outbound traffic is HTTPS to
+  Microsoft Graph, plus TCP through the host proxy to the servers the user
+  connects to.
+- **Dependencies and builds.** Runtime dependencies are limited to the host SDK,
+  the audited `@noble` crypto libraries and React. The lockfile is committed,
+  Dependabot alerts and version updates are enabled, and CI runs typecheck,
+  lint, unit tests, a production build and browser smoke tests with
+  SHA-pinned actions and a read-only token.
+
+### Changes
+
+- **2026-10-11 (unreleased):** Removed FTPS and the `node-forge` dependency.
+  `node-forge` has an unfixed RSA signature-verification advisory
+  (GHSA-86w9-cpqp-85rv), and FTPS had no certificate trust store and was not
+  reachable from the UI.
+- **2026-10-11 (unreleased):** Upgraded vite, vitest and tailwindcss to clear
+  Critical/High advisories in the build and test toolchain; hardened CI
+  (pinned actions, read-only token, supported Node LTS); enabled Dependabot.
+- **1.0.0:** Pre-GA review hardening, including PBKDF2 at 600,000 iterations
+  and host-key pinning across SSH rekey. See [CHANGELOG](./CHANGELOG.md).
 
 ## Development
 
@@ -54,7 +113,7 @@ npm run build      # production PWA build
 
 Live-verification harnesses for the real protocol stacks live in `scripts/`
 (dev-only, run with `tsx`): `ssh-verify`, `sftp-verify`, `transfer-verify`,
-`ftp-verify` (set `FTP_SECURE=1` for FTPS), and `webdav-verify`.
+`ftp-verify`, and `webdav-verify`.
 
 ## License
 
