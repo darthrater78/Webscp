@@ -59,7 +59,9 @@ systems, and prefer keys/passphrases you can rotate.
   `src/ssh/knownhosts.ts`).
 - **FTP.** Plain FTP only, passive mode. It is unencrypted: the username,
   password and files travel in the clear, and the connect dialog says so. FTPS
-  is not supported.
+  is not supported. Data connections always go to the control host (the
+  address a server advertises in a PASV reply is ignored), and any command
+  containing a CR or LF is refused before it is sent.
 - **OneDrive.** Accessed over HTTPS via Microsoft Graph. The OAuth token is
   obtained from the host, held in memory only, and never written to storage.
 - **What is stored, and how.** Everything persistent lives in the browser's
@@ -76,8 +78,10 @@ systems, and prefer keys/passphrases you can rotate.
 
   A passphrase-protected SSH key is decrypted once and stored decrypted inside
   the encrypted vault. Anyone who can run script in the app's origin while the
-  vault is unlocked can read its secrets; there is currently no
-  Content-Security-Policy.
+  vault is unlocked can read its secrets, so the production build carries a
+  Content-Security-Policy that only allows the app's own script files plus the
+  one inline theme script (by hash). It is a `<meta>` tag added at build time
+  (`vite.config.ts`); the dev server does not have it.
 - **Network exposure.** The app listens on nothing. Outbound traffic is HTTPS to
   Microsoft Graph, plus TCP through the host proxy to the servers the user
   connects to.
@@ -89,6 +93,12 @@ systems, and prefer keys/passphrases you can rotate.
 
 ### Changes
 
+- **2026-10-11 (unreleased):** Added a Content-Security-Policy to the
+  production build; previously nothing limited which scripts could run.
+- **2026-10-11 (unreleased):** FTP passive mode no longer connects to the IP a
+  server advertises in a PASV reply (a hostile server could point the data
+  connection at a third party), and FTP commands containing CR/LF are refused
+  (command injection through a crafted name).
 - **2026-10-11 (unreleased):** Removed FTPS and the `node-forge` dependency.
   `node-forge` has an unfixed RSA signature-verification advisory
   (GHSA-86w9-cpqp-85rv), and FTPS had no certificate trust store and was not
