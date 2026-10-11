@@ -126,7 +126,7 @@ export function ConnectDialog() {
     remoteConnect(creds);
   };
 
-  const field = 'h-8 px-2 rounded border border-border bg-transparent';
+  const field = 'h-8 px-2 rounded-sm border border-border bg-transparent';
 
   return (
     <Modal title="Connect to server" onClose={closeConnectDialog}>
@@ -216,7 +216,7 @@ export function ConnectDialog() {
             <label className="flex flex-col gap-1 text-[13px]">
               Private key (OpenSSH PEM)
               <textarea
-                className="h-24 px-2 py-1 rounded border border-border bg-transparent font-mono text-[12px]"
+                className="h-24 px-2 py-1 rounded-sm border border-border bg-transparent font-mono text-[12px]"
                 value={privateKey}
                 onChange={(e) => setPrivateKey(e.target.value)}
                 placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -280,12 +280,12 @@ export function ConnectDialog() {
         )}
 
         <div className="flex justify-end gap-2 mt-2">
-          <button type="button" className="h-8 px-3 rounded border border-border" onClick={closeConnectDialog}>
+          <button type="button" className="h-8 px-3 rounded-sm border border-border" onClick={closeConnectDialog}>
             Cancel
           </button>
           <button
             type="submit"
-            className="h-8 px-4 rounded bg-accent text-accent-fg disabled:opacity-60"
+            className="h-8 px-4 rounded-sm bg-accent text-accent-fg disabled:opacity-60"
             disabled={remoteConnecting}
           >
             {remoteConnecting ? 'Connecting…' : 'Connect'}

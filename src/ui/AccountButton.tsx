@@ -10,7 +10,7 @@ export function AccountButton({ signedIn, connecting, userName, onConnect, onDis
   if (!signedIn) {
     return (
       <button
-        className="px-2 h-7 rounded text-text hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-60"
+        className="px-2 h-7 rounded-sm text-text hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-60"
         onClick={onConnect}
         disabled={connecting}
       >
@@ -20,7 +20,7 @@ export function AccountButton({ signedIn, connecting, userName, onConnect, onDis
   }
   return (
     <button
-      className="px-2 h-7 rounded text-text hover:bg-black/5 dark:hover:bg-white/10"
+      className="px-2 h-7 rounded-sm text-text hover:bg-black/5 dark:hover:bg-white/10"
       title="Disconnect OneDrive"
       aria-label={`Sign out of OneDrive${userName ? ` (${userName})` : ''}`}
       onClick={onDisconnect}

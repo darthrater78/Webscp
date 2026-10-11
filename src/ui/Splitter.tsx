@@ -21,7 +21,7 @@ export function Splitter({ ratio, onRatio }: Props) {
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', stop);
-      window.removeEventListener('blur', stop);
+      window.removeEventListener('blur-sm', stop);
     };
   }, [dragging, onRatio]);
 

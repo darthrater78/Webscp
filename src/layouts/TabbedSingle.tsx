@@ -65,13 +65,13 @@ export function TabbedSingle() {
       />
       <div className="flex gap-1 p-1 bg-surface border-b border-border">
         <button
-          className={`flex-1 h-7 rounded ${side === 'local' ? 'bg-accent text-accent-fg' : 'text-text'}`}
+          className={`flex-1 h-7 rounded-sm ${side === 'local' ? 'bg-accent text-accent-fg' : 'text-text'}`}
           onClick={() => setSide('local')}
         >
           ☁ {local?.label ?? 'OneDrive'}
         </button>
         <button
-          className={`flex-1 h-7 rounded ${side === 'remote' ? 'bg-accent text-accent-fg' : 'text-text'}`}
+          className={`flex-1 h-7 rounded-sm ${side === 'remote' ? 'bg-accent text-accent-fg' : 'text-text'}`}
           onClick={() => setSide('remote')}
         >
           🖥 {remote?.label ?? 'remote'}

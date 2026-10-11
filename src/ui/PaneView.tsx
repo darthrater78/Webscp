@@ -367,7 +367,7 @@ export function PaneView({
       </div>
       <div className="px-2 py-1 border-b border-border flex flex-wrap items-center gap-1 text-[11px]">
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
           disabled={cwd === '/'}
           onClick={handleUp}
           title="Up"
@@ -375,21 +375,21 @@ export function PaneView({
           <IconUp /> Up
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg"
           onClick={reload}
           title="Refresh"
         >
           <IconRefresh /> Refresh
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg"
           onClick={() => setShowNewFolder(true)}
           title="New folder"
         >
           <IconNewFolder /> New folder
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length !== 1}
           onClick={() => setShowRename(true)}
           title="Rename"
@@ -397,7 +397,7 @@ export function PaneView({
           Rename
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length !== 1}
           onClick={() => setShowProperties(true)}
           title="Properties"
@@ -405,7 +405,7 @@ export function PaneView({
           Properties
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-danger/10 hover:text-danger disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-danger/10 hover:text-danger disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length === 0}
           onClick={() => setShowDelete(true)}
           title="Delete"
@@ -414,7 +414,7 @@ export function PaneView({
         </button>
         {onTransferOut && (
           <button
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
             disabled={selectedEntries.length === 0}
             onClick={() => onTransferOut(selectedEntries)}
             title={transferTitle}
@@ -423,7 +423,7 @@ export function PaneView({
           </button>
         )}
         <button
-          className={`ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-accent/10 hover:text-fg ${
+          className={`ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-sm hover:bg-accent/10 hover:text-fg ${
             showHidden ? 'text-fg bg-accent/10' : 'text-muted'
           }`}
           aria-pressed={showHidden}
@@ -450,7 +450,7 @@ export function PaneView({
         aria-label={`${header} file list`}
         aria-activedescendant={activeIdx >= 0 ? `${listId}-opt-${activeIdx}` : undefined}
         tabIndex={0}
-        className="flex-1 min-h-0 overflow-auto font-mono text-[12px] outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className="flex-1 min-h-0 overflow-auto font-mono text-[12px] outline-hidden focus-visible:ring-1 focus-visible:ring-accent"
         onScroll={(evt) => setScrollTop(evt.currentTarget.scrollTop)}
         onKeyDown={onListKeyDown}
       >

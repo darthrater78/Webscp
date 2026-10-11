@@ -25,7 +25,7 @@ export function RemoteConnectHint() {
       {connections.length === 0 ? (
         <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center">
           <div className="text-muted">No saved connections.</div>
-          <button className="h-8 px-4 rounded bg-accent text-accent-fg" onClick={openConnectDialog}>
+          <button className="h-8 px-4 rounded-sm bg-accent text-accent-fg" onClick={openConnectDialog}>
             New connection…
           </button>
         </div>
@@ -36,7 +36,7 @@ export function RemoteConnectHint() {
               <li key={conn.id}>
                 <button
                   type="button"
-                  className="w-full text-left px-2 py-1.5 rounded border border-border hover:bg-black/5 dark:hover:bg-white/10"
+                  className="w-full text-left px-2 py-1.5 rounded-sm border border-border hover:bg-black/5 dark:hover:bg-white/10"
                   onClick={() => onConnect(conn.id)}
                 >
                   <div className="font-medium truncate flex items-center gap-1">
@@ -52,7 +52,7 @@ export function RemoteConnectHint() {
           </ul>
 
           <div className="flex flex-col items-center gap-2 mt-2">
-            <button className="h-8 px-4 rounded bg-accent text-accent-fg" onClick={openConnectDialog}>
+            <button className="h-8 px-4 rounded-sm bg-accent text-accent-fg" onClick={openConnectDialog}>
               New connection…
             </button>
             {vaultState === 'locked' && (
@@ -69,7 +69,7 @@ export function RemoteConnectHint() {
           <span>{remoteError}</span>
           {canReconnect && (
             <button
-              className="h-7 px-3 rounded bg-accent text-accent-fg text-[12px]"
+              className="h-7 px-3 rounded-sm bg-accent text-accent-fg text-[12px]"
               onClick={reconnectLast}
             >
               Reconnect

@@ -139,10 +139,10 @@ export function SyncDialog() {
           <span>Also re-copy when the source file is newer (not just a different size)</span>
         </label>
 
-        {error && <div role="alert" className="text-danger text-[12px] break-words">{error}</div>}
+        {error && <div role="alert" className="text-danger text-[12px] wrap-break-word">{error}</div>}
 
         {summary && !done && (
-          <div className="border border-border rounded px-2 py-1.5 text-[12px]">
+          <div className="border border-border rounded-sm px-2 py-1.5 text-[12px]">
             {nothingToDo ? (
               <span className="text-muted">Everything is already up to date — nothing to do.</span>
             ) : (
@@ -162,19 +162,19 @@ export function SyncDialog() {
         )}
 
         {done && (
-          <div className="border border-border rounded px-2 py-1.5 text-[12px] text-muted">
+          <div className="border border-border rounded-sm px-2 py-1.5 text-[12px] text-muted">
             Synchronization started — copies appear in the transfer queue below.
           </div>
         )}
 
         <div className="flex justify-end gap-2">
-          <button type="button" className="h-8 px-3 rounded border border-border" onClick={closeSync}>
+          <button type="button" className="h-8 px-3 rounded-sm border border-border" onClick={closeSync}>
             {done ? 'Close' : 'Cancel'}
           </button>
           {!done && (
             <button
               type="button"
-              className="h-8 px-3 rounded border border-border hover:bg-accent/10 disabled:opacity-40"
+              className="h-8 px-3 rounded-sm border border-border hover:bg-accent/10 disabled:opacity-40"
               onClick={() => void runPreview()}
               disabled={busy}
             >
@@ -184,7 +184,7 @@ export function SyncDialog() {
           {!done && (
             <button
               type="button"
-              className="h-8 px-3 rounded bg-accent text-accent-fg disabled:opacity-40"
+              className="h-8 px-3 rounded-sm bg-accent text-accent-fg disabled:opacity-40"
               onClick={() => void runApply()}
               disabled={busy || summary === null || nothingToDo}
               title={summary === null ? 'Preview first' : undefined}

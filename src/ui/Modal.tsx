@@ -72,7 +72,7 @@ export function Modal({ title, onClose, children }: Props) {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="bg-surface border border-border rounded-lg shadow-xl w-[min(92vw,420px)] max-h-[90vh] overflow-auto outline-none"
+        className="bg-surface border border-border rounded-lg shadow-xl w-[min(92vw,420px)] max-h-[90vh] overflow-auto outline-hidden"
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={onKeyDown}
       >

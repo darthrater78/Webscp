@@ -55,13 +55,13 @@ function EventRow({ event }: { event: DiagEvent }) {
           {event.level}
         </span>
         {event.code && (
-          <span className="font-mono text-[10px] px-1 rounded bg-black/5 dark:bg-white/10 text-muted shrink-0">
+          <span className="font-mono text-[10px] px-1 rounded-sm bg-black/5 dark:bg-white/10 text-muted shrink-0">
             {event.code}
           </span>
         )}
-        <span className="text-[12px] break-words">{event.message}</span>
+        <span className="text-[12px] wrap-break-word">{event.message}</span>
       </div>
-      {event.detail && <div className="text-muted text-[11px] pl-[62px] break-words">{event.detail}</div>}
+      {event.detail && <div className="text-muted text-[11px] pl-[62px] wrap-break-word">{event.detail}</div>}
     </div>
   );
 }
@@ -140,7 +140,7 @@ export function SettingsDialog() {
       <div className="flex flex-col gap-4">
         <section>
           <h3 className="text-[12px] uppercase tracking-wide text-muted mb-1">Diagnostics</h3>
-          <div className="text-[12px] flex flex-col gap-0.5 border border-border rounded px-2 py-1.5">
+          <div className="text-[12px] flex flex-col gap-0.5 border border-border rounded-sm px-2 py-1.5">
             <div>Host bridge: {hostBridgeStatus}</div>
             <div>OneDrive: {oneDriveStatus}</div>
             <div>Remote: {remoteStatus}</div>
@@ -149,11 +149,11 @@ export function SettingsDialog() {
 
         <section>
           <h3 className="text-[12px] uppercase tracking-wide text-muted mb-1">Security</h3>
-          <div className="text-[12px] flex flex-col gap-1 border border-border rounded px-2 py-1.5">
+          <div className="text-[12px] flex flex-col gap-1 border border-border rounded-sm px-2 py-1.5">
             <label className="flex items-center gap-2">
               <span className="shrink-0">Auto-lock vault after</span>
               <select
-                className="h-7 px-1 rounded border border-border bg-transparent"
+                className="h-7 px-1 rounded-sm border border-border bg-transparent"
                 value={vaultLockMinutes}
                 onChange={(e) => setVaultLockMinutes(Number(e.target.value))}
               >
@@ -187,12 +187,12 @@ export function SettingsDialog() {
 
         <section>
           <h3 className="text-[12px] uppercase tracking-wide text-muted mb-1">Transfer speed</h3>
-          <div className="text-[12px] flex flex-col gap-3 border border-border rounded px-2 py-2">
+          <div className="text-[12px] flex flex-col gap-3 border border-border rounded-sm px-2 py-2">
             <div className="flex flex-col gap-1">
               <label className="flex items-center gap-2">
                 <span className="shrink-0">Send files in parallel</span>
                 <select
-                  className="h-7 px-1 rounded border border-border bg-transparent ml-auto"
+                  className="h-7 px-1 rounded-sm border border-border bg-transparent ml-auto"
                   value={pipelineDepth}
                   onChange={(e) => setPipelineDepth(Number(e.target.value))}
                 >
@@ -216,7 +216,7 @@ export function SettingsDialog() {
               <label className="flex items-center gap-2">
                 <span className="shrink-0">Download buffer size</span>
                 <select
-                  className="h-7 px-1 rounded border border-border bg-transparent ml-auto"
+                  className="h-7 px-1 rounded-sm border border-border bg-transparent ml-auto"
                   value={transferWindowMB}
                   onChange={(e) => setTransferWindowMB(Number(e.target.value))}
                 >
@@ -258,7 +258,7 @@ export function SettingsDialog() {
               </button>
             </div>
           </div>
-          <div className="border border-border rounded px-2 py-1 max-h-64 overflow-auto">
+          <div className="border border-border rounded-sm px-2 py-1 max-h-64 overflow-auto">
             {ordered.length === 0 ? (
               <div className="text-muted text-[12px] py-2 text-center">No events yet.</div>
             ) : (
@@ -270,7 +270,7 @@ export function SettingsDialog() {
         <div className="text-[11px] text-muted">WebSCP — {versionLabel}</div>
 
         <div className="flex justify-end">
-          <button type="button" className="h-8 px-3 rounded border border-border" onClick={closeSettings}>
+          <button type="button" className="h-8 px-3 rounded-sm border border-border" onClick={closeSettings}>
             Close
           </button>
         </div>

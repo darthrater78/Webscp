@@ -94,7 +94,7 @@ function Row({ job, now }: { job: TransferJob; now: number }) {
         <span className="text-muted w-28 text-right tabular-nums truncate" title={meter}>
           {meter}
         </span>
-        <div className="w-24 h-1.5 rounded bg-black/10 dark:bg-white/10 overflow-hidden shrink-0">
+        <div className="w-24 h-1.5 rounded-sm bg-black/10 dark:bg-white/10 overflow-hidden shrink-0">
           <div
             className={`h-full bg-accent ${pct === undefined && isActive ? 'motion-safe:animate-pulse w-full' : ''}`}
             style={pct !== undefined ? { width: `${job.state === 'done' ? 100 : pct}%` } : undefined}
@@ -118,7 +118,7 @@ function Row({ job, now }: { job: TransferJob; now: number }) {
         </span>
       </div>
       {job.state === 'error' && job.error && (
-        <div className="text-danger text-[11px] break-words pl-5 max-h-16 overflow-auto">{job.error}</div>
+        <div className="text-danger text-[11px] wrap-break-word pl-5 max-h-16 overflow-auto">{job.error}</div>
       )}
     </div>
   );

@@ -9,7 +9,7 @@ export function ConnectHint({ connecting, error, onConnect }: Props) {
     <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center">
       <div className="text-muted">Your files live in OneDrive.</div>
       <button
-        className="h-8 px-4 rounded bg-accent text-accent-fg disabled:opacity-60"
+        className="h-8 px-4 rounded-sm bg-accent text-accent-fg disabled:opacity-60"
         onClick={onConnect}
         disabled={connecting}
       >
