@@ -15,7 +15,8 @@ semantic-ish versioning during the pre-1.0 build-out.
 - **Fixed:** on narrow screens the header and the OneDrive/server tabs no longer
   overflow; long names are truncated instead.
 - **Releases:** every tagged version (including `-dev`/`-rc` pre-releases)
-  publishes an importable `webscp-v<version>-upload.zip`, a pre-built
+  publishes `webscp-v<version>-upload.zip` (the one to upload to your hosting
+  platform), a pre-built
   static-site zip and checksums, built and verified by CI.
 - **Security/tooling:** vite 8, vitest 5 and Tailwind CSS 4 (clears all
   `npm audit` advisories); CI hardened (SHA-pinned actions, read-only token,

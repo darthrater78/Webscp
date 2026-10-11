@@ -150,14 +150,16 @@ Each version is published as a GitHub release with these assets:
 
 | Asset | Use |
 |---|---|
-| `webscp-v<version>-upload.zip` | **Import this one into the app host.** It is the app source the host builds itself (`npm ci && npm run build`); it excludes `.github/`, `docs/` and editor state. |
-| `webscp-v<version>-static-site.zip` | Pre-built static files, for a host that does not run a build step. |
+| `webscp-v<version>-upload.zip` | **Upload this one to your hosting platform.** It is the app source the platform builds itself (`npm ci && npm run build`); it excludes `.github/`, `docs/` and editor state. |
+| `webscp-v<version>-static-site.zip` | Pre-built static files, for a host that does not run a build step for you. Most platforms want the upload zip above, not this one. |
 | `SHA256SUMS.txt` | Checksums for both zips. |
 
 `npm run package` builds the same files locally into `release/` (commit first:
 the upload zip is made from `HEAD`). CI builds them for every commit and proves
 the upload zip builds on its own; the release workflow attaches the files CI
-built for the tagged commit. Stable tags (`v1.1.0`) must be on `main`.
+built for the tagged commit. Each release's notes lead with a one-line reminder
+of which asset to use, and the release page labels the assets the same way.
+Stable tags (`v1.1.0`) must be on `main`.
 Pre-release tags such as `v1.1.0-dev.1` can be pushed from any branch and
 publish as GitHub pre-releases.
 

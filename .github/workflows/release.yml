@@ -151,9 +151,9 @@ jobs:
             exit 1
           fi
           {
-            echo "**Deploying?** Import \`webscp-v${version}-upload.zip\` into the app host"
-            echo "— it's the app source for the host to build. The static-site zip is only for"
-            echo "a host that doesn't build for you."
+            echo "**Deploying?** Upload \`webscp-v${version}-upload.zip\` to your hosting"
+            echo "platform — it's the app source for the platform to build. The static-site zip"
+            echo "is only for a host that doesn't build for you."
             echo
             cat changelog-section.md
           } > release-notes.md
@@ -170,7 +170,7 @@ jobs:
             *-dev.*|*-alpha.*|*-beta.*|*-rc.*) prerelease_flag="--prerelease" ;;
           esac
           gh release create "$GITHUB_REF_NAME" \
-            "release/webscp-v${version}-upload.zip#⬆️ Import this into the app host" \
+            "release/webscp-v${version}-upload.zip#⬆️ Upload this to your hosting platform" \
             "release/webscp-v${version}-static-site.zip#Static files (for a host that doesn't build for you)" \
             "release/SHA256SUMS.txt#Checksums" \
             -R "$REPO" \

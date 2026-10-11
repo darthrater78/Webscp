@@ -3,7 +3,7 @@
 The README on main embeds banner.svg from the unprotected `readme-banner`
 branch, which .github/workflows/dev-banner.yml rewrites after every Release
 run. When a pre-release is newer than the newest stable release, the banner
-names it, gives its one-line summary and the zip to import; otherwise it is an
+names it, gives its one-line summary and the zip to upload; otherwise it is an
 empty 1x1 image, so the README shows nothing.
 
 Usage:
@@ -73,7 +73,7 @@ def summary(body: str) -> str:
 
 
 def upload_zip(release: dict) -> str | None:
-    """The importable source zip attached to the release, if any."""
+    """The source zip to upload to the hosting platform, if attached."""
     for asset in release.get("assets") or []:
         if asset.get("name", "").endswith("-upload.zip"):
             return asset["name"]
@@ -103,12 +103,12 @@ def render(release: dict | None) -> str:
         y += 16
         parts.append(f'<rect x="30" y="{y}" width="{WIDTH - 60}" height="30" rx="5" fill="{BG}"/>')
         parts.append(
-            f'<text x="44" y="{y + 20}" font-family="{MONO}" font-size="13" fill="{DIM}">Import: '
+            f'<text x="44" y="{y + 20}" font-family="{MONO}" font-size="13" fill="{DIM}">Upload: '
             f'<tspan fill="{TEXT}">{escape(pull)}</tspan></text>'
         )
         y += 30
     height = y + 22
-    label = escape(f"Dev build {tag} available" + (f": import {pull}" if pull else ""))
+    label = escape(f"Dev build {tag} available" + (f": upload {pull}" if pull else ""))
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" '
         f'viewBox="0 0 {WIDTH} {height}" role="img" aria-label="{label}">\n'
