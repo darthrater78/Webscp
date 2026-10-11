@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. Versions follow
 semantic-ish versioning during the pre-1.0 build-out.
 
-## [1.1.0]
+## [1.1.0] — 2026-10-11
 
 - **Removed FTPS** and the `node-forge` dependency: `node-forge` carries an
   unfixed signature-verification advisory (GHSA-86w9-cpqp-85rv), and FTPS had no
@@ -12,6 +12,8 @@ semantic-ish versioning during the pre-1.0 build-out.
 - **Security:** production builds now ship a Content-Security-Policy; FTP
   passive data connections always go to the control host; FTP commands
   containing CR/LF are refused.
+- **Fixed:** on narrow screens the header and the OneDrive/server tabs no longer
+  overflow; long names are truncated instead.
 - **Releases:** every tagged version (including `-dev`/`-rc` pre-releases)
   publishes an importable `webscp-v<version>-upload.zip`, a pre-built
   static-site zip and checksums, built and verified by CI.
@@ -20,7 +22,7 @@ semantic-ish versioning during the pre-1.0 build-out.
   Node 24, timeouts, docs-only skip); Dependabot configuration added; a
   "Security architecture" section added to the README.
 
-## [1.0.0] — GA
+## [1.0.0] — GA (never tagged or published; superseded by 1.1.0)
 
 First general-availability release. Rolls up the work below plus:
 
