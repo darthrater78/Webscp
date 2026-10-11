@@ -18,6 +18,7 @@ import {
   type CompareBy,
 } from '../transfer/sync';
 import { OneDriveFS } from '../onedrive/OneDriveFS';
+import { oneDriveConnectMessage } from '../onedrive/connectError';
 import {
   oneDriveAuth,
   connectOneDrive,
@@ -518,7 +519,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // 'superseded'/'blocked' are internal coordinator states (e.g. a sign-out
         // raced this connect), not user-facing failures.
         if (res.reason !== 'superseded' && res.reason !== 'blocked') {
-          setConnectError(res.detail ?? 'Could not connect to OneDrive.');
+          setConnectError(oneDriveConnectMessage(res));
           diag.error('OneDrive connect failed', { code: res.reason, detail: res.detail });
         }
       }
