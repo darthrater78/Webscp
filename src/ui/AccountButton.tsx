@@ -1,3 +1,5 @@
+import { IconUser } from './icons';
+
 interface Props {
   signedIn: boolean;
   connecting?: boolean;
@@ -10,7 +12,7 @@ export function AccountButton({ signedIn, connecting, userName, onConnect, onDis
   if (!signedIn) {
     return (
       <button
-        className="px-2 h-7 rounded text-text hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-60"
+        className="px-3 h-8 shrink-0 whitespace-nowrap rounded-md bg-accent text-accent-fg font-semibold disabled:opacity-60"
         onClick={onConnect}
         disabled={connecting}
       >
@@ -20,12 +22,13 @@ export function AccountButton({ signedIn, connecting, userName, onConnect, onDis
   }
   return (
     <button
-      className="px-2 h-7 rounded text-text hover:bg-black/5 dark:hover:bg-white/10"
+      className="inline-flex items-center gap-1.5 px-2 h-8 min-w-0 rounded-md text-muted hover:text-text hover:bg-surface-2"
       title="Disconnect OneDrive"
       aria-label={`Sign out of OneDrive${userName ? ` (${userName})` : ''}`}
       onClick={onDisconnect}
     >
-      👤 {userName ?? 'OneDrive'} · Sign out
+      <IconUser />
+      <span className="truncate">{userName ?? 'OneDrive'} · Sign out</span>
     </button>
   );
 }

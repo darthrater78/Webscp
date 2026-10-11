@@ -1,0 +1,218 @@
+<title>WebSCP Dusk Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: B·Dusk's dark ground, amber accent and mono file data, set in C·Workbench's
+   rounded panes with a Send/Fetch column, plain-language status and a function-key bar. */
+:root {
+  color-scheme: dark;
+  --ground: #0b0f17;      /* page behind the panes */
+  --pane: #121826;        /* pane surface */
+  --pane-head: #172033;   /* pane header and footer */
+  --line: #232d42;        /* hairlines */
+  --fg: #e6e9ef;
+  --muted: #8a93a6;
+  --amber: #e5a43b;       /* accent */
+  --amber-ink: #1a1204;   /* text on amber */
+  --amber-text: #e5a43b;  /* amber used as text */
+  --amber-wash: #3a2a0f;  /* selected rows */
+  --ok: #5cc48a;
+  --ok-wash: #12301f;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  color-scheme: light; --ground: #e6e9ef; --pane: #ffffff; --pane-head: #f3f5f8; --line: #d5dbe5;
+  --fg: #19202d; --muted: #5b6577; --amber: #e5a43b; --amber-ink: #1a1204; --amber-text: #8f5c06;
+  --amber-wash: #fcefd6; --ok: #1c7a48; --ok-wash: #ddf1e5; } }
+:root[data-theme="light"] {
+  color-scheme: light; --ground: #e6e9ef; --pane: #ffffff; --pane-head: #f3f5f8; --line: #d5dbe5;
+  --fg: #19202d; --muted: #5b6577; --amber: #e5a43b; --amber-ink: #1a1204; --amber-text: #8f5c06;
+  --amber-wash: #fcefd6; --ok: #1c7a48; --ok-wash: #ddf1e5; }
+html, body { height: 100%; }
+body { background: var(--ground); color: var(--fg); font: 15px/1.4 var(--sans); }
+.app { min-height: 100%; display: grid; grid-template-rows: auto 1fr auto auto; gap: 12px; padding: 14px 16px 0; box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, .row:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
+
+/* Top bar */
+.top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--pane); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; }
+.brand { font: 600 17px var(--mono); color: var(--amber-text); letter-spacing: .02em; }
+.status { display: inline-flex; align-items: center; gap: 8px; background: var(--ok-wash); color: var(--ok); border-radius: 6px; padding: 5px 10px; font-weight: 600; }
+.top nav { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { background: transparent; border: 1px solid var(--line); border-radius: 7px; padding: 7px 14px; }
+.btn:hover { border-color: var(--muted); }
+.who { color: var(--muted); padding: 7px 6px; }
+
+/* Panes */
+.work { display: grid; grid-template-columns: minmax(0,1fr) 150px minmax(0,1fr); gap: 12px; min-height: 0; }
+.pane { background: var(--pane); border: 1px solid var(--line); border-radius: var(--r); display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.pane.active { border-color: var(--amber); }
+.phead { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--pane-head); border-bottom: 1px solid var(--line); }
+.pane.active .phead { background: var(--amber); color: var(--amber-ink); }
+.phead svg { flex: none; }
+.ptitle { min-width: 0; flex: 1; }
+.ptitle b { display: block; font-weight: 700; }
+.ptitle code { font: 13px var(--mono); opacity: .8; overflow-wrap: anywhere; }
+.phead .btn { border-color: currentColor; opacity: .85; padding: 5px 12px; }
+.key { font: 12px var(--mono); color: var(--ok); }
+.cols, .row { display: grid; grid-template-columns: 28px minmax(0,1fr) 90px 150px; gap: 10px; align-items: center; padding: 0 14px; }
+.cols { font: 12px var(--mono); color: var(--muted); height: 30px; border-bottom: 1px solid var(--line); text-transform: lowercase; }
+.cols span:nth-child(n+3), .num { text-align: right; }
+.list { flex: 1; overflow: auto; }
+.row { height: 36px; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.row:hover { background: var(--pane-head); }
+.row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row.dir .name { font-weight: 600; }
+.row svg { color: var(--muted); }
+.row.dir svg { color: var(--amber-text); }
+.num { font: 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row.sel { background: var(--amber-wash); color: var(--amber-text); }
+.row.sel .num, .row.sel svg { color: var(--amber-text); }
+.pfoot { font: 12px var(--mono); color: var(--muted); padding: 9px 14px; border-top: 1px solid var(--line); background: var(--pane-head); }
+
+/* Middle column */
+.mid { display: flex; flex-direction: column; justify-content: center; gap: 10px; text-align: center; }
+.send { background: var(--amber); color: var(--amber-ink); border: 0; border-radius: 8px; padding: 14px; font-weight: 700; display: flex; justify-content: center; gap: 8px; }
+.fetch { background: var(--pane); border: 1px solid var(--line); border-radius: 8px; padding: 13px; font-weight: 600; display: flex; justify-content: center; gap: 8px; }
+.mid small { color: var(--muted); font-size: 13px; }
+.mid kbd { font: 11px var(--mono); color: var(--amber-text); }
+
+/* Transfer */
+.xfer { background: var(--pane); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; grid-template-columns: minmax(0,360px) minmax(0,1fr) auto auto; gap: 18px; align-items: center; }
+.xfer b { display: block; }
+.xfer .sub { font: 12px var(--mono); color: var(--muted); }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 62%; background: var(--amber); border-radius: 99px; }
+.queue { color: var(--muted); font-size: 14px; white-space: nowrap; }
+
+/* Function keys */
+.fkeys { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 8px; padding-block: 2px 14px; }
+.fkeys button { display: flex; align-items: center; gap: 10px; background: var(--pane); border: 1px solid var(--line); border-radius: 8px; padding: 11px 14px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fkeys button:hover { border-color: var(--amber); }
+.fkeys kbd { flex: none; min-width: 2.2em; text-align: center; font: 600 12px var(--mono); color: var(--amber-text); background: var(--pane-head); border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; }
+
+/* Theme toggle */
+.theme { display: inline-flex; align-items: center; gap: 7px; }
+.demo { font-size: 12px; color: var(--muted); text-align: right; padding: 0 16px 10px; background: var(--ground); }
+
+@media (max-width: 900px) {
+  .work { grid-template-columns: minmax(0,1fr); }
+  .mid { flex-direction: row; } .mid button { flex: 1; } .mid small { display: none; }
+  .cols, .row { grid-template-columns: 24px minmax(0,1fr) 72px; }
+  .cols span:nth-child(4), .row .num:last-child { display: none; }
+  .xfer { grid-template-columns: minmax(0,1fr) auto; }
+  .xfer .bar { grid-column: 1 / -1; grid-row: 2; }
+  .queue { display: none; }
+  .fkeys { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="folder" viewBox="0 0 20 20"><path d="M2.5 5.5a1 1 0 0 1 1-1h4l1.5 2h7.5a1 1 0 0 1 1 1v7.5a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="file" viewBox="0 0 20 20"><path d="M5 2.5h6.5L15 6v11.5H5z M11.5 2.5V6H15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="cloud" viewBox="0 0 20 20"><path d="M6 15.5h8.5a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 5.3 9.6 3 3 0 0 0 6 15.5z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="server" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="11.5" width="14" height="5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="14" r="1" fill="currentColor"/></symbol>
+  <symbol id="check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <span class="brand">webscp</span>
+    <span class="status"><svg width="16" height="16"><use href="#check"/></svg>Connected securely to files.example.com</span>
+    <nav>
+      <button class="btn">Synchronize folders</button>
+      <button class="btn">Connections</button>
+      <button class="btn">Settings</button>
+      <button class="btn theme" id="theme-toggle" aria-label="Switch theme"><span id="theme-label">Bright</span></button>
+      <span class="who">Alex Morgan</span>
+    </nav>
+  </header>
+
+  <main class="work">
+    <section class="pane active" aria-label="OneDrive">
+      <div class="phead">
+        <svg width="22" height="22"><use href="#cloud"/></svg>
+        <div class="ptitle"><b>Your OneDrive</b><code>onedrive:/</code></div>
+        <button class="btn">New folder</button>
+      </div>
+      <div class="cols"><span></span><span>name</span><span>size</span><span>modified</span></div>
+      <div class="list" id="left"></div>
+      <div class="pfoot">2 selected, 18.1 MB</div>
+    </section>
+
+    <div class="mid">
+      <button class="send">Send <span aria-hidden="true">→</span></button>
+      <button class="fetch"><span aria-hidden="true">←</span> Fetch</button>
+      <small>or drag files between the two sides</small>
+      <small><kbd>F5</kbd> copies the selection</small>
+    </div>
+
+    <section class="pane" aria-label="SFTP server">
+      <div class="phead">
+        <svg width="22" height="22"><use href="#server"/></svg>
+        <div class="ptitle"><b>files.example.com</b><code>deploy@…:/home/deploy</code></div>
+        <span class="key">sftp, key verified</span>
+        <button class="btn">Disconnect</button>
+      </div>
+      <div class="cols"><span></span><span>name</span><span>size</span><span>modified</span></div>
+      <div class="list" id="right"></div>
+      <div class="pfoot">9 items</div>
+    </section>
+  </main>
+
+  <section class="xfer" aria-label="Transfer">
+    <div><b>Sending site-export.zip</b><span class="sub">11.2 of 18.0 MB · 4.6 MB/s · about 2 s left</span></div>
+    <div class="bar" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+    <span class="queue">1 more file waiting</span>
+    <button class="btn">Cancel</button>
+  </section>
+
+  <footer class="fkeys">
+    <button><kbd>F2</kbd>Rename</button>
+    <button><kbd>F5</kbd>Copy</button>
+    <button><kbd>F6</kbd>Move</button>
+    <button><kbd>F7</kbd>New folder</button>
+    <button><kbd>F8</kbd>Delete</button>
+    <button><kbd>F9</kbd>Properties</button>
+    <button><kbd>^R</kbd>Refresh</button>
+    <button><kbd>^S</kbd>Synchronize</button>
+  </footer>
+</div>
+<div class="demo">Mockup · demo data · B·Dusk × C·Workbench</div>
+
+<script>
+const L = [
+  ["Documents", "", "2026-10-02 08:15", 1], ["Pictures", "", "2026-07-19 17:40", 1],
+  ["Projects", "", "2026-10-09 11:05", 1], ["Releases", "", "2026-10-08 14:20", 1],
+  ["architecture-notes.docx", "278.0 KB", "2026-09-28 13:22"],
+  ["Q3-report.xlsx", "94.0 KB", "2026-10-03 09:48", 0, 1],
+  ["site-export.zip", "18.0 MB", "2026-10-07 19:02", 0, 1],
+  ["todo.txt", "612 B", "2026-10-10 07:30"],
+];
+const R = [
+  ["backups", "", "2026-10-01 02:00", 1], ["logs", "", "2026-10-10 23:59", 1],
+  ["releases", "", "2026-10-08 14:12", 1], ["www", "", "2026-09-30 09:41", 1],
+  ["deploy.sh", "2.3 KB", "2026-10-08 14:10"], ["docker-compose.yml", "1.1 KB", "2026-09-22 16:35"],
+  ["nginx.conf", "3.5 KB", "2026-09-22 16:31"], ["README.md", "1.8 KB", "2026-08-14 10:02"],
+  ["site-backup-2026-10-01.tar.gz", "48.0 MB", "2026-10-01 02:04"],
+];
+function fill(id, rows) {
+  document.getElementById(id).innerHTML = rows.map(([n, s, d, dir, sel]) =>
+    `<div class="row${dir ? " dir" : ""}${sel ? " sel" : ""}" tabindex="0">` +
+    `<svg width="18" height="18"><use href="#${dir ? "folder" : "file"}"/></svg>` +
+    `<span class="name">${n}</span><span class="num">${s}</span><span class="num">${d}</span></div>`).join("");
+}
+fill("left", L); fill("right", R);
+
+// Dark/bright toggle. Starts from the OS setting; a choice is remembered when storage allows.
+const root = document.documentElement, label = document.getElementById("theme-label");
+const isDark = () => (root.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")) === "dark";
+function apply(t) { if (t) root.dataset.theme = t; label.textContent = isDark() ? "☀ Bright" : "☾ Dark"; }
+try { apply(localStorage.getItem("webscp-theme")); } catch { apply(); }
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  const t = isDark() ? "light" : "dark"; apply(t);
+  try { localStorage.setItem("webscp-theme", t); } catch {}
+});
+</script>

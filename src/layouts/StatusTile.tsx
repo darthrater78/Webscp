@@ -11,7 +11,7 @@ export function StatusTile() {
       <div className="text-muted">No active transfers.</div>
       {/* TODO(later plan): wire to full-app navigation once host routing exists. */}
       <button
-        className="mt-auto h-7 rounded bg-accent text-accent-fg"
+        className="mt-auto h-7 rounded-md bg-accent text-accent-fg"
         onClick={() => {
           /* placeholder: full-app navigation added in a later plan */
         }}

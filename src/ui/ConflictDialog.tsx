@@ -27,21 +27,21 @@ export function ConflictDialog() {
         <div className="flex justify-end gap-2 mt-2">
           <button
             type="button"
-            className="h-8 px-3 rounded border border-border"
+            className="h-8 px-3 rounded-md border border-border"
             onClick={() => choose('skip')}
           >
             Skip
           </button>
           <button
             type="button"
-            className="h-8 px-3 rounded border border-border"
+            className="h-8 px-3 rounded-md border border-border"
             onClick={() => choose('rename')}
           >
             Rename
           </button>
           <button
             type="button"
-            className="h-8 px-4 rounded bg-accent text-accent-fg"
+            className="h-8 px-4 rounded-md bg-accent text-accent-fg"
             onClick={() => choose('overwrite')}
           >
             Overwrite

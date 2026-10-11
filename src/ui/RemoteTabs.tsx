@@ -25,7 +25,7 @@ export function RemoteTabs() {
           className={`group flex items-center gap-1 px-2 py-1 cursor-pointer rounded-t border border-b-0 ${
             s.active
               ? 'bg-bg border-border text-text font-medium'
-              : 'bg-transparent border-transparent text-muted hover:bg-accent/5'
+              : 'bg-transparent border-transparent text-muted hover:bg-surface-2'
           }`}
         >
           {s.dropped && (
@@ -50,7 +50,7 @@ export function RemoteTabs() {
       ))}
       <button
         type="button"
-        className="px-2 py-1 text-muted hover:text-accent"
+        className="px-2 py-1 text-muted hover:text-accent-text"
         title="New session"
         aria-label="New session"
         onClick={openNewSession}

@@ -1,7 +1,8 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -32,6 +33,49 @@ function readGitSha(): string {
   }
 }
 
+// Adds a Content-Security-Policy <meta> to the production index.html. The app
+// holds SSH keys, passwords and the OneDrive token in page memory, so script
+// injection must not be able to run: scripts are limited to our own files plus
+// the inline scripts present at build time (allowed by hash). Build-only,
+// because the dev server injects its own inline scripts.
+//
+// connect-src stays at `https:` because OneDrive upload/download URLs are
+// pre-authenticated links on Microsoft hosts that cannot be listed up front.
+// Inline styles are allowed for React `style` attributes.
+function contentSecurityPolicy(): Plugin {
+  return {
+    name: 'webscp-csp',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        const hashes = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(
+          (m) => `'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`,
+        );
+        const policy = [
+          "default-src 'self'",
+          `script-src 'self' ${hashes.join(' ')}`.trim(),
+          "style-src 'self' 'unsafe-inline'",
+          "img-src 'self' data:",
+          "connect-src 'self' https:",
+          "worker-src 'self'",
+          "manifest-src 'self'",
+          "object-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+        ].join('; ');
+        return [
+          {
+            tag: 'meta',
+            attrs: { 'http-equiv': 'Content-Security-Policy', content: policy },
+            injectTo: 'head-prepend',
+          },
+        ];
+      },
+    },
+  };
+}
+
 const appVersion = readAppVersion();
 const buildTime = new Date().toISOString();
 const gitSha = readGitSha();
@@ -44,6 +88,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    contentSecurityPolicy(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],

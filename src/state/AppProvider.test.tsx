@@ -32,7 +32,10 @@ vi.mock('../sdk/client', () => ({
 // whenever the provider constructs its OneDriveFS.
 let localFsForOneDriveMock: FileSystem = new MockFS('local');
 vi.mock('../onedrive/OneDriveFS', () => ({
-  OneDriveFS: vi.fn().mockImplementation(() => localFsForOneDriveMock),
+  // A regular function (not an arrow): the provider calls this with `new`.
+  OneDriveFS: vi.fn().mockImplementation(function () {
+    return localFsForOneDriveMock;
+  }),
 }));
 
 const mockConnectSftp = connectSftp as unknown as ReturnType<typeof vi.fn>;

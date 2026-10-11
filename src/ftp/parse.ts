@@ -82,7 +82,8 @@ export function parseEpsv(text: string): number {
 
 /**
  * Parse a PASV (227) reply `h1,h2,h3,h4,p1,p2` into an IPv4 host and port.
- * port = p1*256 + p2.
+ * port = p1*256 + p2. The host is informational only: the data connection
+ * always goes to the control host (see FtpClient.openPassive).
  */
 export function parsePasv(text: string): { host: string; port: number } {
   const m = /(\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3})/.exec(text);
@@ -93,29 +94,6 @@ export function parsePasv(text: string): { host: string; port: number } {
   const port = nums[4] * 256 + nums[5];
   if (port <= 0 || port > 65535) throw new Error(`Invalid PASV port: ${text}`);
   return { host, port };
-}
-
-/** RFC 1918 / loopback / link-local / unspecified detection for IPv4 dotted quads. */
-export function isPrivateIp(ip: string): boolean {
-  const parts = ip.split('.').map(Number);
-  if (parts.length !== 4 || parts.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return true;
-  const [a, b] = parts;
-  if (a === 10) return true;
-  if (a === 127) return true;
-  if (a === 0) return true;
-  if (a === 192 && b === 168) return true;
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  if (a === 169 && b === 254) return true; // link-local
-  return false;
-}
-
-/**
- * Choose the host to open the PASV data connection to. Many servers behind NAT
- * advertise a private/wrong IP in the 227 reply; when that happens (or the IP
- * is otherwise unroutable) fall back to the control host we already reached.
- */
-export function resolveDataHost(controlHost: string, pasvIp: string): string {
-  return isPrivateIp(pasvIp) ? controlHost : pasvIp;
 }
 
 /**

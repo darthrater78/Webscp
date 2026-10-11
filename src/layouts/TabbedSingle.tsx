@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../state/AppProvider';
 import { MenuBar } from '../ui/MenuBar';
-import { StatusBar } from '../ui/StatusBar';
+import { IconCloud, IconServer } from '../ui/icons';
 import { PaneView } from '../ui/PaneView';
 import { RemoteTabs } from '../ui/RemoteTabs';
 import { TransferQueue } from '../ui/TransferQueue';
@@ -65,16 +65,18 @@ export function TabbedSingle() {
       />
       <div className="flex gap-1 p-1 bg-surface border-b border-border">
         <button
-          className={`flex-1 h-7 rounded ${side === 'local' ? 'bg-accent text-accent-fg' : 'text-text'}`}
+          className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 h-8 rounded-md ${side === 'local' ? 'bg-accent text-accent-fg' : 'text-text'}`}
           onClick={() => setSide('local')}
         >
-          ☁ {local?.label ?? 'OneDrive'}
+          <IconCloud />
+          <span className="truncate">{local?.label ?? 'OneDrive'}</span>
         </button>
         <button
-          className={`flex-1 h-7 rounded ${side === 'remote' ? 'bg-accent text-accent-fg' : 'text-text'}`}
+          className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 h-8 rounded-md ${side === 'remote' ? 'bg-accent text-accent-fg' : 'text-text'}`}
           onClick={() => setSide('remote')}
         >
-          🖥 {remote?.label ?? 'remote'}
+          <IconServer />
+          <span className="truncate">{remote?.label ?? 'remote'}</span>
         </button>
       </div>
       <div className="flex-1 min-h-0">
@@ -117,7 +119,6 @@ export function TabbedSingle() {
         )}
       </div>
       <TransferQueue />
-      <StatusBar left={side === 'local' ? (local?.label ?? 'OneDrive') : (remote?.label ?? 'remote')} />
       {connectDialogOpen && <ConnectDialog />}
       {hostKeyPrompt && <HostKeyPrompt />}
       {connectionManagerOpen && <ConnectionManager />}

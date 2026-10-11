@@ -3,7 +3,38 @@
 All notable changes to this project are documented here. Versions follow
 semantic-ish versioning during the pre-1.0 build-out.
 
-## [1.0.0] — GA
+## [1.1.0] — 2026-10-11
+
+- **Redesign (Dusk Workbench):** new look in dark and bright themes, written
+  down in `DESIGN.md`. Amber accent, Source Sans 3 with JetBrains Mono for file
+  data (both bundled, so the CSP still allows no font host), rounded panes,
+  Send/Fetch buttons between the panes, a plain-language connection status,
+  pane footers with selection size, and a function-key bar (F2, F5, F7, F8, F9).
+  Emoji icons replaced with line icons; the bottom status bar is gone.
+- **Fixed:** the pane splitter left a window `blur` listener behind after each
+  drag (its removal used the wrong event name).
+- **Docs:** README screenshots retaken; `scripts/screenshots/` retakes them
+  from demo data.
+
+- **Removed FTPS** and the `node-forge` dependency: `node-forge` carries an
+  unfixed signature-verification advisory (GHSA-86w9-cpqp-85rv), and FTPS had no
+  certificate-trust model and was never exposed in the connect UI. SFTP and plain
+  FTP are unchanged.
+- **Security:** production builds now ship a Content-Security-Policy; FTP
+  passive data connections always go to the control host; FTP commands
+  containing CR/LF are refused.
+- **Fixed:** on narrow screens the header and the OneDrive/server tabs no longer
+  overflow; long names are truncated instead.
+- **Releases:** every tagged version (including `-dev`/`-rc` pre-releases)
+  publishes `webscp-v<version>-upload.zip` (the one to upload to your hosting
+  platform), a pre-built
+  static-site zip and checksums, built and verified by CI.
+- **Security/tooling:** vite 8, vitest 5 and Tailwind CSS 4 (clears all
+  `npm audit` advisories); CI hardened (SHA-pinned actions, read-only token,
+  Node 24, timeouts, docs-only skip); Dependabot configuration added; a
+  "Security architecture" section added to the README.
+
+## [1.0.0] — GA (never tagged or published; superseded by 1.1.0)
 
 First general-availability release. Rolls up the work below plus:
 

@@ -31,9 +31,9 @@ export function Splitter({ ratio, onRatio }: Props) {
       aria-orientation="vertical"
       onMouseDown={() => setDragging(true)}
       title={`${Math.round(ratio * 100)}%`}
-      className={`w-1 cursor-col-resize transition-colors ${
-        dragging ? 'bg-accent' : 'bg-border hover:bg-accent'
-      }`}
-    />
+      className="group w-3 shrink-0 flex justify-center cursor-col-resize"
+    >
+      <div className={`w-0.5 h-full rounded-full ${dragging ? 'bg-accent' : 'group-hover:bg-accent'}`} />
+    </div>
   );
 }

@@ -49,7 +49,7 @@ export function ConnectionManager() {
     <Modal title="Saved connections" onClose={closeConnectionManager}>
       <div className="flex flex-col gap-3">
         {vaultState === 'locked' && (
-          <div className="text-[12px] text-muted flex items-center justify-between border border-border rounded px-2 py-1">
+          <div className="text-[12px] text-muted flex items-center justify-between border border-border rounded-md px-2 py-1">
             <span>Some connections have secrets stored in a locked vault.</span>
           </div>
         )}
@@ -61,7 +61,7 @@ export function ConnectionManager() {
             {connections.map((conn) => (
               <li
                 key={conn.id}
-                className="flex items-center justify-between gap-2 px-2 py-1.5 rounded border border-border text-[13px]"
+                className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-md border border-border text-[13px]"
               >
                 <div className="min-w-0">
                   <div className="font-medium truncate flex items-center gap-1">
@@ -74,25 +74,25 @@ export function ConnectionManager() {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <button
-                    className="h-7 px-2 rounded bg-accent text-accent-fg text-[12px]"
+                    className="h-7 px-2 rounded-md bg-accent text-accent-fg text-[12px]"
                     onClick={() => onConnect(conn.id)}
                   >
                     Connect
                   </button>
                   <button
-                    className="h-7 px-2 rounded border border-border text-[12px]"
+                    className="h-7 px-2 rounded-md border border-border text-[12px]"
                     onClick={() => onEdit(conn)}
                   >
                     Edit
                   </button>
                   <button
-                    className="h-7 px-2 rounded border border-border text-[12px]"
+                    className="h-7 px-2 rounded-md border border-border text-[12px]"
                     onClick={() => duplicateConnection(conn.id)}
                   >
                     Duplicate
                   </button>
                   <button
-                    className="h-7 px-2 rounded border border-border text-danger text-[12px]"
+                    className="h-7 px-2 rounded-md border border-border text-danger text-[12px]"
                     onClick={() => onDelete(conn.id, conn.name)}
                   >
                     Delete
@@ -104,10 +104,10 @@ export function ConnectionManager() {
         )}
 
         <div className="flex justify-end gap-2 mt-2">
-          <button type="button" className="h-8 px-3 rounded border border-border" onClick={closeConnectionManager}>
+          <button type="button" className="h-8 px-3 rounded-md border border-border" onClick={closeConnectionManager}>
             Close
           </button>
-          <button type="button" className="h-8 px-4 rounded bg-accent text-accent-fg" onClick={onNew}>
+          <button type="button" className="h-8 px-4 rounded-md bg-accent text-accent-fg" onClick={onNew}>
             New connection
           </button>
         </div>

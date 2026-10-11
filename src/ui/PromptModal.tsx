@@ -54,7 +54,7 @@ export function PromptModal({
             <input
               ref={inputRef}
               type="text"
-              className="w-full px-2 py-1 border border-border rounded bg-surface"
+              className="w-full px-2 py-1 border border-border rounded-md bg-surface"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => {
@@ -69,14 +69,14 @@ export function PromptModal({
         <div className="flex justify-end gap-2">
           <button
             type="button"
-            className="px-3 py-1 text-sm rounded border border-border hover:bg-accent/10"
+            className="px-3 py-1 text-sm rounded-md border border-border hover:bg-accent-wash"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className={`px-3 py-1 text-sm rounded text-white ${danger ? 'bg-danger' : 'bg-accent'}`}
+            className={`px-3 py-1 text-sm rounded-md ${danger ? 'bg-danger text-danger-fg' : 'bg-accent text-accent-fg'}`}
           >
             {confirmLabel}
           </button>

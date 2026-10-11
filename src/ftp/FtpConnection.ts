@@ -4,9 +4,8 @@
 // control ByteStream) and a fresh passive DATA connection per transfer/listing.
 //
 // Only passive mode is supported: a browser (and the host TCP proxy) cannot
-// accept inbound connections, so active mode is impossible. Both plain FTP and
-// explicit FTPS (AUTH TLS -> PROT P, via a node-forge TLS layer over the raw
-// socket) are supported; see the creds.secure path in connectFtp.
+// accept inbound connections, so active mode is impossible. Only plain FTP is
+// supported: FTPS was removed until it has a real certificate-trust model.
 
 import { tcpConnect, type TcpConnectResult } from '../sdk/tcp';
 import { ByteStream, type RawSocket } from '../net/ByteStream';
@@ -24,18 +23,15 @@ import {
   parseEpsv,
   parsePasv,
   parsePwd,
-  resolveDataHost,
   type FtpReply,
 } from './parse';
 import { FtpFS } from './FtpFS';
-import { upgradeToTls } from './tls';
 
 export interface FtpCredentials {
   host: string;
   port: number;
   username: string;
   password: string;
-  secure?: boolean;
 }
 
 export interface FtpConnection {
@@ -129,10 +125,6 @@ export class FtpDataConnection {
  */
 export class FtpClient {
   private lock: Promise<void> = Promise.resolve();
-  /** True once PROT P is in effect: passive DATA sockets are wrapped in TLS. */
-  private secure = false;
-  /** TLS wrapper applied to each passive DATA socket when {@link secure}. */
-  private tlsWrap: ((sock: RawSocket) => Promise<RawSocket>) | null = null;
 
   constructor(
     private control: ByteStream,
@@ -141,18 +133,6 @@ export class FtpClient {
     /** Connector for passive DATA connections (defaults to the host proxy). */
     private readonly dataConnect: TcpConnectFn = tcpConnect,
   ) {}
-
-  /**
-   * Switch the control channel onto an already-upgraded TLS socket and record the
-   * wrapper to apply to future passive DATA connections. Called after AUTH TLS +
-   * upgradeToTls succeed; all subsequent control commands run encrypted.
-   */
-  enableTls(tlsControl: RawSocket, dataWrap: (sock: RawSocket) => Promise<RawSocket>): void {
-    this.control = new ByteStream(tlsControl);
-    this.controlSock = tlsControl;
-    this.tlsWrap = dataWrap;
-    this.secure = true;
-  }
 
   /** Run `fn` with exclusive use of the control (and data) channel. */
   async withLock<T>(fn: () => Promise<T>): Promise<T> {
@@ -204,6 +184,11 @@ export class FtpClient {
 
   /** Write `line + CRLF` to the control channel. */
   private async writeLine(line: string): Promise<void> {
+    // A CR or LF inside an argument (a username, a file name) would end this
+    // command early and smuggle a second one onto the control channel.
+    if (/[\r\n]/.test(line)) {
+      throw new FsError('io', 'FTP command rejected: it contains a line break.');
+    }
     await this.control.write(new TextEncoder().encode(`${line}\r\n`));
   }
 
@@ -221,12 +206,14 @@ export class FtpClient {
   }
 
   /**
-   * Open a passive data connection. Prefers EPSV (data host = control host),
-   * falling back to PASV (parsed IP, or control host when that IP is private).
+   * Open a passive data connection, always to the control host. Prefers EPSV,
+   * falling back to PASV for its port only: the IP a server advertises in a 227
+   * reply is ignored, so a hostile server cannot steer the data connection (and
+   * the host TCP proxy) at a third party.
    * Caller must hold the lock.
    */
   async openPassive(): Promise<FtpDataConnection> {
-    let host = this.host;
+    const host = this.host;
     let port: number;
     const epsv = await this.command('EPSV');
     if (epsv.code === 229) {
@@ -234,23 +221,13 @@ export class FtpClient {
     } else {
       const pasv = await this.command('PASV');
       if (pasv.code !== 227) throw ftpError(pasv, 'PASV');
-      const parsed = parsePasv(pasv.text);
-      host = resolveDataHost(this.host, parsed.host);
-      port = parsed.port;
+      port = parsePasv(pasv.text).port;
     }
     const result = await this.dataConnect(host, port);
     if (!result.ok || !result.socket) {
       throw new FsError('io', `Failed to open FTP data connection to ${host}:${port}: ${result.detail ?? 'unknown error'}`);
     }
-    // With PROT P the data channel is TLS too. Each passive connection performs a
-    // FRESH TLS handshake. Some servers demand TLS session RESUMPTION of the
-    // control session's parameters on the data connection (and refuse a full
-    // handshake); forge does not support client-side resumption, so those servers
-    // will not interoperate. Common servers (vsftpd/proftpd/FileZilla, with
-    // resumption not required) accept the fresh handshake.
-    let sock = result.socket;
-    if (this.secure && this.tlsWrap) sock = await this.tlsWrap(sock);
-    return new FtpDataConnection(sock);
+    return new FtpDataConnection(result.socket);
   }
 
   /** Send QUIT (best-effort) and close the control socket. */
@@ -278,13 +255,6 @@ export async function connectFtp(
   label?: string,
   opts?: {
     tcpConnect?: TcpConnectFn;
-    /**
-     * FTPS certificate trust. Defaults to true: the server certificate must
-     * chain to a trusted CA or the handshake aborts. Set false to accept any
-     * (incl. self-signed) certificate for a trusted LAN host -- this disables
-     * MITM protection on the encrypted channel (see upgradeToTls).
-     */
-    rejectUnauthorized?: boolean;
   },
 ): Promise<FtpConnection> {
   const { host, port, username, password } = creds;
@@ -304,35 +274,12 @@ export async function connectFtp(
     const greeting = await client.readReply();
     if (greeting.code !== 220) throw ftpError(greeting, 'FTP greeting');
 
-    // Explicit FTPS: negotiate TLS on the (still plain) control channel BEFORE
-    // login, so credentials never travel in the clear. AUTH TLS is the modern
-    // command; some servers only recognize the older AUTH SSL.
-    if (creds.secure) {
-      const rejectUnauthorized = opts?.rejectUnauthorized ?? true;
-      const auth = await client.command('AUTH TLS');
-      if (auth.code !== 234) {
-        const ssl = await client.command('AUTH SSL');
-        if (ssl.code !== 234) throw ftpError(auth, 'AUTH TLS');
-      }
-      const wrap = (sock: RawSocket) => upgradeToTls(sock, { host, rejectUnauthorized });
-      const tlsControl = await upgradeToTls(controlSock, { host, rejectUnauthorized });
-      client.enableTls(tlsControl, wrap);
-    }
-
     const userReply = await client.command(`USER ${username}`);
     if (userReply.code === 331 || userReply.code === 332) {
       const passReply = await client.command(`PASS ${password}`);
       if (passReply.code !== 230 && passReply.code !== 202) throw ftpError(passReply, 'PASS');
     } else if (userReply.code !== 230) {
       throw ftpError(userReply, 'USER');
-    }
-
-    // On a TLS control channel, protect the data channels too: PBSZ 0 (protection
-    // buffer size, always 0 for TLS) then PROT P (Private = TLS-encrypted data).
-    // After this, openPassive() wraps each data socket in TLS.
-    if (creds.secure) {
-      await client.commandExpect('PBSZ 0', [200], 'PBSZ 0');
-      await client.commandExpect('PROT P', [200], 'PROT P');
     }
 
     // Binary type (required for correct byte-accurate transfers).

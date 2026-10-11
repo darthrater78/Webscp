@@ -32,8 +32,6 @@ export {
   parseSize,
   permsToMode,
   parseLsDate,
-  isPrivateIp,
-  resolveDataHost,
 } from './parse';
 
 function basename(path: string): string {
