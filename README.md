@@ -18,6 +18,20 @@ through the host app's TCP proxy, and OneDrive is accessed via Microsoft Graph.
 > implementation inspired by WinSCP's workflow. "WinSCP" is a trademark of its
 > respective owner and is used here only to describe the inspiration.
 
+## Screenshots
+
+OneDrive on the left, an SFTP server on the right (demo data):
+
+![Two-pane view, light theme](docs/screenshots/commander-light.png)
+
+![Two-pane view, dark theme](docs/screenshots/commander-dark.png)
+
+A new server's host key must be accepted before any credentials are sent:
+
+![Host key verification prompt](docs/screenshots/host-key-prompt.png)
+
+![Connect dialog](docs/screenshots/connect-dialog.png)
+
 ## Features
 
 - **Two-pane transfers** between OneDrive and a remote server, with drag/drop,
