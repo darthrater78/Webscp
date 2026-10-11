@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ['**'] # every branch push; not a bare `push:`, which also matches tags
   pull_request:
 
 permissions:
