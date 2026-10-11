@@ -5,6 +5,8 @@ dist/
 *.tsbuildinfo
 *.zip
 .claude/
+.dev-skills-gates.md
+.dev-skills-handoff.md
 
 # Playwright
 /test-results/
