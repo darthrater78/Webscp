@@ -11,6 +11,9 @@ semantic-ish versioning during the pre-1.0 build-out.
   Send/Fetch buttons between the panes, a plain-language connection status,
   pane footers with selection size, and a function-key bar (F2, F5, F7, F8, F9).
   Emoji icons replaced with line icons; the bottom status bar is gone.
+- **Clearer OneDrive errors:** when Island grants no OneDrive token, times out,
+  or isn't there at all, the connect message now says which, and what to try
+  (for example, enabling OneDrive for this app in Island's settings).
 - **Fixed:** the pane splitter left a window `blur` listener behind after each
   drag (its removal used the wrong event name).
 - **Docs:** README screenshots retaken; `scripts/screenshots/` retakes them
