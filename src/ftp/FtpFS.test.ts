@@ -21,8 +21,6 @@ import {
   parseModifyTime,
   parseSize,
   permsToMode,
-  isPrivateIp,
-  resolveDataHost,
 } from './parse';
 
 const mockTcpConnect = tcpConnect as unknown as Mock;
@@ -141,18 +139,17 @@ describe('parsePasv', () => {
   });
 });
 
-describe('isPrivateIp / resolveDataHost', () => {
-  it('flags RFC1918 and loopback ranges', () => {
-    expect(isPrivateIp('10.0.0.1')).toBe(true);
-    expect(isPrivateIp('192.168.1.1')).toBe(true);
-    expect(isPrivateIp('172.16.5.5')).toBe(true);
-    expect(isPrivateIp('127.0.0.1')).toBe(true);
-    expect(isPrivateIp('169.254.1.1')).toBe(true);
-    expect(isPrivateIp('8.8.8.8')).toBe(false);
-  });
-  it('prefers the control host when PASV reports a private IP', () => {
-    expect(resolveDataHost('ftp.example.com', '192.168.0.10')).toBe('ftp.example.com');
-    expect(resolveDataHost('ftp.example.com', '203.0.113.5')).toBe('203.0.113.5');
+describe('FtpClient.openPassive (PASV fallback)', () => {
+  it('ignores the IP in the 227 reply and connects to the control host', async () => {
+    const control = new ScriptedSocket()
+      .push('500 EPSV not understood\r\n')
+      .push('227 Entering Passive Mode (203,0,113,5,195,80)\r\n');
+    mockTcpConnect.mockResolvedValue({ ok: true, socket: new ScriptedSocket() });
+
+    await makeClient(control).openPassive();
+
+    expect(mockTcpConnect).toHaveBeenCalledTimes(1);
+    expect(mockTcpConnect).toHaveBeenCalledWith('ftp.example.com', 50000);
   });
 });
 
@@ -260,6 +257,15 @@ describe('FtpClient.readReply over a scripted socket', () => {
     const r = await client.readReply();
     expect(r.code).toBe(211);
     expect(r.lines).toEqual(['Features:', ' MLSD', ' UTF8', 'End']);
+  });
+
+  it('command() refuses a line containing CR or LF and sends nothing', async () => {
+    const sock = new ScriptedSocket();
+    const client = makeClient(sock);
+    await expect(client.command('USER bob\r\nDELE /etc/passwd')).rejects.toThrow(/line break/);
+    await expect(client.command('CWD a\nb')).rejects.toThrow(/line break/);
+    await expect(client.command('CWD a\rb')).rejects.toThrow(/line break/);
+    expect(sock.sent).toEqual([]);
   });
 
   it('command() writes line + CRLF and returns the reply', async () => {

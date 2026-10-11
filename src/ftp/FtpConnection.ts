@@ -23,7 +23,6 @@ import {
   parseEpsv,
   parsePasv,
   parsePwd,
-  resolveDataHost,
   type FtpReply,
 } from './parse';
 import { FtpFS } from './FtpFS';
@@ -185,6 +184,11 @@ export class FtpClient {
 
   /** Write `line + CRLF` to the control channel. */
   private async writeLine(line: string): Promise<void> {
+    // A CR or LF inside an argument (a username, a file name) would end this
+    // command early and smuggle a second one onto the control channel.
+    if (/[\r\n]/.test(line)) {
+      throw new FsError('io', 'FTP command rejected: it contains a line break.');
+    }
     await this.control.write(new TextEncoder().encode(`${line}\r\n`));
   }
 
@@ -202,12 +206,14 @@ export class FtpClient {
   }
 
   /**
-   * Open a passive data connection. Prefers EPSV (data host = control host),
-   * falling back to PASV (parsed IP, or control host when that IP is private).
+   * Open a passive data connection, always to the control host. Prefers EPSV,
+   * falling back to PASV for its port only: the IP a server advertises in a 227
+   * reply is ignored, so a hostile server cannot steer the data connection (and
+   * the host TCP proxy) at a third party.
    * Caller must hold the lock.
    */
   async openPassive(): Promise<FtpDataConnection> {
-    let host = this.host;
+    const host = this.host;
     let port: number;
     const epsv = await this.command('EPSV');
     if (epsv.code === 229) {
@@ -215,9 +221,7 @@ export class FtpClient {
     } else {
       const pasv = await this.command('PASV');
       if (pasv.code !== 227) throw ftpError(pasv, 'PASV');
-      const parsed = parsePasv(pasv.text);
-      host = resolveDataHost(this.host, parsed.host);
-      port = parsed.port;
+      port = parsePasv(pasv.text).port;
     }
     const result = await this.dataConnect(host, port);
     if (!result.ok || !result.socket) {
