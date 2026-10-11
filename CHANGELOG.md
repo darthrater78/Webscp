@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. Versions follow
 semantic-ish versioning during the pre-1.0 build-out.
 
-## [Unreleased]
+## [1.1.0] — 2026-10-11
 
 - **Redesign (Dusk Workbench):** new look in dark and bright themes, written
   down in `DESIGN.md`. Amber accent, Source Sans 3 with JetBrains Mono for file
@@ -15,8 +15,6 @@ semantic-ish versioning during the pre-1.0 build-out.
   drag (its removal used the wrong event name).
 - **Docs:** README screenshots retaken; `scripts/screenshots/` retakes them
   from demo data.
-
-## [1.1.0] — 2026-10-11
 
 - **Removed FTPS** and the `node-forge` dependency: `node-forge` carries an
   unfixed signature-verification advisory (GHSA-86w9-cpqp-85rv), and FTPS had no
