@@ -22,7 +22,7 @@
     "@noble/ciphers": "^1.0.0",
     "@noble/curves": "^1.6.0",
     "@noble/hashes": "^1.5.0",
-    "ai-publish-sdk": "^1.9.2",
+    "ai-publish-sdk": "^1.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
