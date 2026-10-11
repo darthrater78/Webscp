@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. Versions follow
 semantic-ish versioning during the pre-1.0 build-out.
 
-## [Unreleased]
+## [1.1.0]
 
 - **Removed FTPS** and the `node-forge` dependency: `node-forge` carries an
   unfixed signature-verification advisory (GHSA-86w9-cpqp-85rv), and FTPS had no
@@ -12,6 +12,9 @@ semantic-ish versioning during the pre-1.0 build-out.
 - **Security:** production builds now ship a Content-Security-Policy; FTP
   passive data connections always go to the control host; FTP commands
   containing CR/LF are refused.
+- **Releases:** every tagged version (including `-dev`/`-rc` pre-releases)
+  publishes an importable `webscp-v<version>-upload.zip`, a pre-built
+  static-site zip and checksums, built and verified by CI.
 - **Security/tooling:** vite 8, vitest 5 and Tailwind CSS 4 (clears all
   `npm audit` advisories); CI hardened (SHA-pinned actions, read-only token,
   Node 24, timeouts, docs-only skip); Dependabot configuration added; a

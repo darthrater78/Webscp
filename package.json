@@ -1,7 +1,7 @@
 {
   "name": "webscp",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "description": "WebSCP — a client-side PWA SFTP/FTP file-transfer client that uses OneDrive as the local side, delivered for the Island browser via the AI app host. Inspired by WinSCP; independently implemented.",
@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
-    "lock": "npm install --package-lock-only --ignore-scripts --no-audit"
+    "lock": "npm install --package-lock-only --ignore-scripts --no-audit",
+    "package": "node scripts/package.mjs"
   },
   "dependencies": {
     "@noble/ciphers": "^1.0.0",
@@ -51,5 +52,10 @@
     "vite": "^8.3.4",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darthrater78/Webscp.git"
+  },
+  "homepage": "https://github.com/darthrater78/Webscp#readme"
 }

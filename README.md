@@ -1,5 +1,8 @@
 # WebSCP
 
+[GitHub](https://github.com/darthrater78/Webscp) ·
+[Release notes for v1.1.0](https://github.com/darthrater78/Webscp/releases/tag/v1.1.0)
+
 A client-side, browser-based file-transfer client with a familiar two-pane
 "commander" layout. The left pane is your **OneDrive**; the right pane is a
 **remote server** over SFTP or FTP. It runs entirely in the browser as a
@@ -93,17 +96,17 @@ systems, and prefer keys/passphrases you can rotate.
 
 ### Changes
 
-- **2026-10-11 (unreleased):** Added a Content-Security-Policy to the
+- **2026-10-11 (1.1.0):** Added a Content-Security-Policy to the
   production build; previously nothing limited which scripts could run.
-- **2026-10-11 (unreleased):** FTP passive mode no longer connects to the IP a
+- **2026-10-11 (1.1.0):** FTP passive mode no longer connects to the IP a
   server advertises in a PASV reply (a hostile server could point the data
   connection at a third party), and FTP commands containing CR/LF are refused
   (command injection through a crafted name).
-- **2026-10-11 (unreleased):** Removed FTPS and the `node-forge` dependency.
+- **2026-10-11 (1.1.0):** Removed FTPS and the `node-forge` dependency.
   `node-forge` has an unfixed RSA signature-verification advisory
   (GHSA-86w9-cpqp-85rv), and FTPS had no certificate trust store and was not
   reachable from the UI.
-- **2026-10-11 (unreleased):** Upgraded vite, vitest and tailwindcss to clear
+- **2026-10-11 (1.1.0):** Upgraded vite, vitest and tailwindcss to clear
   Critical/High advisories in the build and test toolchain; hardened CI
   (pinned actions, read-only token, supported Node LTS); enabled Dependabot.
 - **1.0.0:** Pre-GA review hardening, including PBKDF2 at 600,000 iterations
@@ -124,6 +127,23 @@ npm run build      # production PWA build
 Live-verification harnesses for the real protocol stacks live in `scripts/`
 (dev-only, run with `tsx`): `ssh-verify`, `sftp-verify`, `transfer-verify`,
 `ftp-verify`, and `webdav-verify`.
+
+## Releases
+
+Each version is published as a GitHub release with these assets:
+
+| Asset | Use |
+|---|---|
+| `webscp-v<version>-upload.zip` | **Import this one into the app host.** It is the app source the host builds itself (`npm ci && npm run build`); it excludes `.github/`, `docs/` and editor state. |
+| `webscp-v<version>-static-site.zip` | Pre-built static files, for a host that does not run a build step. |
+| `SHA256SUMS.txt` | Checksums for both zips. |
+
+`npm run package` builds the same files locally into `release/` (commit first:
+the upload zip is made from `HEAD`). CI builds them for every commit and proves
+the upload zip builds on its own; the release workflow attaches the files CI
+built for the tagged commit. Stable tags (`v1.1.0`) must be on `main`.
+Pre-release tags such as `v1.1.0-dev.1` can be pushed from any branch and
+publish as GitHub pre-releases.
 
 ## License
 
