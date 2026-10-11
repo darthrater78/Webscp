@@ -1,0 +1,6 @@
+# Kept out of the app source zip (`git archive`, used by `npm run package`).
+# CI, planning docs and editor state never ship.
+.github/ export-ignore
+.claude/ export-ignore
+docs/ export-ignore
+.gitattributes export-ignore

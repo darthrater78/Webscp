@@ -4,6 +4,7 @@ dist/
 *.local
 *.tsbuildinfo
 *.zip
+release/
 .claude/
 .dev-skills-gates.md
 .dev-skills-handoff.md
