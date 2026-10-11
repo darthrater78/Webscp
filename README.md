@@ -1,5 +1,7 @@
 # WebSCP
 
+<a href="https://github.com/darthrater78/Webscp/releases"><img alt="Dev build status" src="https://raw.githubusercontent.com/darthrater78/Webscp/readme-banner/banner.svg" /></a>
+
 [GitHub](https://github.com/darthrater78/Webscp) ·
 [Release notes for v1.1.0](https://github.com/darthrater78/Webscp/releases/tag/v1.1.0)
 
