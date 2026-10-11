@@ -20,7 +20,9 @@ through the host app's TCP proxy, and OneDrive is accessed via Microsoft Graph.
 
 ## Screenshots
 
-OneDrive on the left, an SFTP server on the right (demo data):
+OneDrive on the left, an SFTP server on the right (demo data). Retake them
+with `npx tsx scripts/screenshots/shoot.mts`, which renders the real UI against
+the demo data in `scripts/screenshots/fakeApp.ts`:
 
 ![Two-pane view, light theme](docs/screenshots/commander-light.png)
 
@@ -34,9 +36,10 @@ A new server's host key must be accepted before any credentials are sent:
 
 ## Features
 
-- **Two-pane transfers** between OneDrive and a remote server, with drag/drop,
-  multi-select, F5, and a live transfer queue showing per-file **throughput and
-  elapsed time**.
+- **Two-pane transfers** between OneDrive and a remote server: **Send** and
+  **Fetch** buttons, drag/drop, multi-select, a function-key bar (F2 rename,
+  F5 copy across, F7 new folder, F8 delete, F9 properties), and a live transfer
+  queue showing per-file **throughput and elapsed time**.
 - **Protocols:** SFTP (SSH) and plain FTP. WebDAV and S3 adapters exist in the
   codebase but are not currently exposed in the connect UI.
 - **From-scratch SSH/SFTP stack:** curve25519 key exchange, ed25519 host-key TOFU
@@ -48,7 +51,8 @@ A new server's host key must be accepted before any credentials are sent:
   (WebCrypto PBKDF2 + AES-GCM) behind a master passphrase.
 - **Directory Synchronize / Mirror**, **multi-session tabs**, a **hidden-files
   toggle**, a **properties/permissions** dialog, **file-list virtualization** for
-  large directories, resumable transfers, and light/dark themes.
+  large directories, resumable transfers, and dark and bright themes
+  (see [DESIGN.md](DESIGN.md)).
 
 ## No warranty, no support
 

@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. Versions follow
 semantic-ish versioning during the pre-1.0 build-out.
 
+## [Unreleased]
+
+- **Redesign (Dusk Workbench):** new look in dark and bright themes, written
+  down in `DESIGN.md`. Amber accent, Source Sans 3 with JetBrains Mono for file
+  data (both bundled, so the CSP still allows no font host), rounded panes,
+  Send/Fetch buttons between the panes, a plain-language connection status,
+  pane footers with selection size, and a function-key bar (F2, F5, F7, F8, F9).
+  Emoji icons replaced with line icons; the bottom status bar is gone.
+- **Fixed:** the pane splitter left a window `blur` listener behind after each
+  drag (its removal used the wrong event name).
+- **Docs:** README screenshots retaken; `scripts/screenshots/` retakes them
+  from demo data.
+
 ## [1.1.0] — 2026-10-11
 
 - **Removed FTPS** and the `node-forge` dependency: `node-forge` carries an

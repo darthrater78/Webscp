@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { Commander } from './Commander';
 import { useApp } from '../state/AppProvider';
 import type { FileSystem } from '../fs/FileSystem';
@@ -117,5 +117,57 @@ describe('Commander remote pane wiring', () => {
     );
     render(<Commander />);
     expect(screen.getByText(/SHA256:abc/).textContent).toMatch(/SHA256:abc/);
+  });
+});
+
+describe('Commander Send/Fetch and function keys', () => {
+  beforeEach(() => {
+    mockUseApp.mockReset();
+  });
+
+  const file = { name: 'a.txt', path: '/a.txt', kind: 'file' as const, size: 3, mtime: 0 };
+
+  it('disables Send until something on the OneDrive side is selected', () => {
+    mockUseApp.mockReturnValue(baseState({ local: fakeRemoteFs(), remote: fakeRemoteFs() }));
+    render(<Commander />);
+    expect((screen.getByRole('button', { name: /send/i }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: /fetch/i }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('Send queues the OneDrive selection for the server folder', () => {
+    const enqueueTransfer = vi.fn();
+    mockUseApp.mockReturnValue(
+      baseState({
+        local: fakeRemoteFs(),
+        remote: fakeRemoteFs(),
+        localSelection: [file],
+        remoteCwd: '/srv',
+        enqueueTransfer,
+      }),
+    );
+    render(<Commander />);
+    fireEvent.click(screen.getByRole('button', { name: /send/i }));
+    expect(enqueueTransfer).toHaveBeenCalledWith({ from: 'local', entries: [file], toDir: '/srv' });
+  });
+
+  it('F7 opens New folder on the active pane, but not while typing in a field', async () => {
+    mockUseApp.mockReturnValue(baseState({ local: fakeRemoteFs(), remote: fakeRemoteFs() }));
+    render(<Commander />);
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    fireEvent.keyDown(input, { key: 'F7' });
+    expect(screen.queryByText('Folder name')).toBeNull();
+    input.remove();
+
+    fireEvent.keyDown(window, { key: 'F7' });
+    expect(await screen.findByText('Folder name')).toBeTruthy();
+  });
+
+  it('the command bar button runs the same command', async () => {
+    mockUseApp.mockReturnValue(baseState({ local: fakeRemoteFs(), remote: fakeRemoteFs() }));
+    render(<Commander />);
+    const bar = screen.getByRole('toolbar', { name: 'Commands' });
+    fireEvent.click(within(bar).getByRole('button', { name: /new folder/i }));
+    expect(await screen.findByText('Folder name')).toBeTruthy();
   });
 });

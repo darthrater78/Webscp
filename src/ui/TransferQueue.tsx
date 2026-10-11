@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppProvider';
 import type { TransferJob } from '../transfer/queue';
+import { IconArrowLeft, IconArrowRight } from './icons';
 
 function fmtSize(n?: number): string {
   if (n === undefined) return '';
@@ -75,9 +76,11 @@ function Row({ job, now }: { job: TransferJob; now: number }) {
       : '';
 
   return (
-    <div className="py-0.5">
-      <div className="flex items-center gap-2">
-        <span aria-hidden="true">{job.direction === 'up' ? '⬆' : '⬇'}</span>
+    <div className="py-1">
+      <div className="flex items-center gap-3">
+        <span aria-hidden="true" className={isActive ? 'text-accent-text' : 'text-muted'}>
+          {job.direction === 'up' ? <IconArrowRight /> : <IconArrowLeft />}
+        </span>
         <span className="truncate flex-1" title={job.name}>
           {job.name}
           {job.retried && (job.state === 'active' || job.state === 'conflict' || job.state === 'done') && (
@@ -91,34 +94,36 @@ function Row({ job, now }: { job: TransferJob; now: number }) {
             </span>
           )}
         </span>
-        <span className="text-muted w-28 text-right tabular-nums truncate" title={meter}>
+        <span className="hidden sm:inline text-muted w-32 text-right font-mono text-[12px] tabular-nums truncate" title={meter}>
           {meter}
         </span>
-        <div className="w-24 h-1.5 rounded-sm bg-black/10 dark:bg-white/10 overflow-hidden shrink-0">
+        <div className="w-24 sm:w-64 h-2 rounded-full bg-border overflow-hidden shrink-0">
           <div
-            className={`h-full bg-accent ${pct === undefined && isActive ? 'motion-safe:animate-pulse w-full' : ''}`}
+            className={`h-full rounded-full bg-accent ${pct === undefined && isActive ? 'motion-safe:animate-pulse w-full' : ''}`}
             style={pct !== undefined ? { width: `${job.state === 'done' ? 100 : pct}%` } : undefined}
           />
         </div>
-        <span className="text-muted w-16 text-right truncate" title={stateLabel(job)}>
+        <span className="text-muted w-20 text-right font-mono text-[12px] truncate" title={stateLabel(job)}>
           {stateLabel(job)}
         </span>
-        {job.size !== undefined && <span className="text-muted w-16 text-right">{fmtSize(job.size)}</span>}
-        <span className="w-14 text-right">
+        {job.size !== undefined && (
+          <span className="hidden sm:inline text-muted w-20 text-right font-mono text-[12px] tabular-nums">{fmtSize(job.size)}</span>
+        )}
+        <span className="w-16 text-right">
           {cancellable && (
-            <button className="text-muted hover:text-danger" onClick={() => cancelJob(job.id)}>
+            <button className="px-2 py-0.5 rounded-md border border-border hover:text-danger" onClick={() => cancelJob(job.id)}>
               Cancel
             </button>
           )}
           {retryable && (
-            <button className="text-muted hover:text-accent" onClick={() => retryJob(job.id)}>
+            <button className="text-muted hover:text-accent-text" onClick={() => retryJob(job.id)}>
               Retry
             </button>
           )}
         </span>
       </div>
       {job.state === 'error' && job.error && (
-        <div className="text-danger text-[11px] wrap-break-word pl-5 max-h-16 overflow-auto">{job.error}</div>
+        <div className="text-danger text-[12px] wrap-break-word pl-7 max-h-16 overflow-auto">{job.error}</div>
       )}
     </div>
   );
@@ -143,19 +148,19 @@ export function TransferQueue() {
 
   return (
     <div
-      className="border-t border-border bg-surface px-3 py-1 text-[11px] max-h-40 overflow-auto"
+      className="rounded-[10px] border border-border bg-surface px-3.5 py-2 max-h-40 overflow-auto"
       role="region"
       aria-label="Transfer queue"
     >
-      <div className="flex items-center gap-2 text-muted uppercase tracking-wide mb-0.5">
-        <span>Transfer queue</span>
-        <span>({jobs.length})</span>
+      <div className="flex items-center gap-2 text-[13px] text-muted mb-0.5">
+        <span className="font-semibold text-text">Transfers</span>
+        <span className="font-mono text-[12px]">{jobs.length}</span>
         <span role="status" aria-live="polite" className="sr-only">
           {jobs.length === 0
             ? 'Transfer queue empty'
             : `${jobs.length} transfer${jobs.length === 1 ? '' : 's'}, ${activeCount} active, ${doneCount} complete`}
         </span>
-        <button className="ml-auto normal-case hover:text-accent" onClick={clearFinished}>
+        <button className="ml-auto normal-case hover:text-accent-text" onClick={clearFinished}>
           Clear finished
         </button>
         <button className="normal-case hover:text-danger" onClick={cancelAllJobs}>

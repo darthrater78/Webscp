@@ -2,7 +2,17 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 're
 import type { FileSystem, FsEntry } from '../fs/FileSystem';
 import { joinPath, parentPath } from '../fs/FileSystem';
 import { describeError } from '../fs/describeError';
-import { IconFolder, IconFile, IconUp, IconDown, IconRefresh, IconNewFolder, IconTrash } from './icons';
+import {
+  IconFolder,
+  IconFile,
+  IconUp,
+  IconDown,
+  IconRefresh,
+  IconNewFolder,
+  IconTrash,
+  IconCloud,
+  IconServer,
+} from './icons';
 import { PromptModal } from './PromptModal';
 import { PropertiesDialog } from './PropertiesDialog';
 
@@ -19,11 +29,21 @@ function EyeIcon({ off }: { off: boolean }) {
 }
 
 /** Fixed height (px) of one file row; used by the windowing math below. */
-const ROW_H = 22;
+const ROW_H = 32;
 /** Extra rows rendered above/below the viewport to avoid blank flashes while scrolling. */
 const OVERSCAN = 6;
 
 type SortKey = 'name' | 'size' | 'mtime';
+
+/** Pane commands the Commander's function-key bar can run on the active pane. */
+export interface PaneActions {
+  rename: () => void;
+  newFolder: () => void;
+  remove: () => void;
+  properties: () => void;
+  refresh: () => void;
+  send: () => void;
+}
 
 interface Props {
   fs: FileSystem;
@@ -45,6 +65,12 @@ interface Props {
   /** Bumped externally (e.g. when a transfer completes into this pane) to force
    * a re-list of the current directory, without resetting cwd or selection. */
   refreshSignal?: number;
+  /** The pane the function-key bar acts on; drawn with an accent header. */
+  active?: boolean;
+  /** Called when the user clicks or focuses inside this pane. */
+  onActivate?: () => void;
+  /** Filled with this pane's commands while it is mounted. */
+  actionsRef?: React.MutableRefObject<PaneActions | null>;
 }
 
 // Module-level "current drag" — simpler and more robust than serializing entries
@@ -75,6 +101,9 @@ export function PaneView({
   onDropIn,
   side,
   refreshSignal,
+  active,
+  onActivate,
+  actionsRef,
 }: Props) {
   const [cwd, setCwd] = useState(initialPath);
   const [entries, setEntries] = useState<FsEntry[]>([]);
@@ -340,10 +369,30 @@ export function PaneView({
   const transferLabel = side === 'local' ? 'Upload →' : side === 'remote' ? '← Download' : 'Transfer';
   const transferTitle = side === 'local' ? 'Upload to remote' : side === 'remote' ? 'Download to local' : 'Transfer';
 
+  // Re-registered every render so the function-key bar always sees the current selection.
+  useEffect(() => {
+    if (!actionsRef) return;
+    actionsRef.current = {
+      rename: () => selectedEntries.length === 1 && setShowRename(true),
+      newFolder: () => setShowNewFolder(true),
+      remove: () => selectedEntries.length > 0 && setShowDelete(true),
+      properties: () => selectedEntries.length === 1 && setShowProperties(true),
+      refresh: reload,
+      send: () => selectedEntries.length > 0 && onTransferOut?.(selectedEntries),
+    };
+  });
+
+  const selectedBytes = selectedEntries.reduce((n, e) => n + (e.kind === 'dir' ? 0 : (e.size ?? 0)), 0);
+  const footer = selectedEntries.length
+    ? `${selectedEntries.length} selected${selectedBytes ? `, ${fmtSize(selectedBytes)}` : ''}`
+    : `${rows.length} item${rows.length === 1 ? '' : 's'}`;
+
   return (
     <div
       ref={containerRef}
       className="flex flex-col h-full min-h-0 bg-surface"
+      onMouseDownCapture={onActivate}
+      onFocusCapture={onActivate}
       onMouseEnter={() => {
         hoveredRef.current = true;
       }}
@@ -353,21 +402,30 @@ export function PaneView({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <div className="px-2 py-1 border-b border-border font-semibold flex items-center gap-2">
-        <span className="truncate">{header}</span>
-        <span className="text-muted font-normal truncate">· {cwd}</span>
+      <div
+        className={`px-3 py-2 border-b border-border flex items-center gap-3 ${
+          active ? 'bg-accent text-accent-fg' : 'bg-surface-2'
+        }`}
+      >
+        <span className="shrink-0" aria-hidden="true">
+          {side === 'remote' ? <IconServer /> : <IconCloud />}
+        </span>
+        <div className="min-w-0 flex-1 leading-tight">
+          <div className="font-bold truncate">{header}</div>
+          <div className={`font-mono text-[12px] truncate ${active ? '' : 'text-muted'}`}>{cwd}</div>
+        </div>
         {onDisconnect && (
           <button
-            className="ml-auto text-muted font-normal text-[11px] hover:text-danger"
+            className="shrink-0 px-3 py-1 rounded-md border border-current text-[13px] opacity-85 hover:opacity-100"
             onClick={onDisconnect}
           >
             Disconnect
           </button>
         )}
       </div>
-      <div className="px-2 py-1 border-b border-border flex flex-wrap items-center gap-1 text-[11px]">
+      <div className="px-2 py-1 border-b border-border flex flex-wrap items-center gap-1 text-[12px]">
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text disabled:opacity-40 disabled:pointer-events-none"
           disabled={cwd === '/'}
           onClick={handleUp}
           title="Up"
@@ -375,21 +433,21 @@ export function PaneView({
           <IconUp /> Up
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text"
           onClick={reload}
           title="Refresh"
         >
           <IconRefresh /> Refresh
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text"
           onClick={() => setShowNewFolder(true)}
           title="New folder"
         >
           <IconNewFolder /> New folder
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length !== 1}
           onClick={() => setShowRename(true)}
           title="Rename"
@@ -397,7 +455,7 @@ export function PaneView({
           Rename
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length !== 1}
           onClick={() => setShowProperties(true)}
           title="Properties"
@@ -405,7 +463,7 @@ export function PaneView({
           Properties
         </button>
         <button
-          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-danger/10 hover:text-danger disabled:opacity-40 disabled:pointer-events-none"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-surface-2 hover:text-danger disabled:opacity-40 disabled:pointer-events-none"
           disabled={selectedEntries.length === 0}
           onClick={() => setShowDelete(true)}
           title="Delete"
@@ -414,7 +472,7 @@ export function PaneView({
         </button>
         {onTransferOut && (
           <button
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-muted hover:bg-accent/10 hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-muted hover:bg-accent-wash hover:text-text disabled:opacity-40 disabled:pointer-events-none"
             disabled={selectedEntries.length === 0}
             onClick={() => onTransferOut(selectedEntries)}
             title={transferTitle}
@@ -423,8 +481,8 @@ export function PaneView({
           </button>
         )}
         <button
-          className={`ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-sm hover:bg-accent/10 hover:text-fg ${
-            showHidden ? 'text-fg bg-accent/10' : 'text-muted'
+          className={`ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-accent-wash hover:text-text ${
+            showHidden ? 'text-text bg-accent-wash' : 'text-muted'
           }`}
           aria-pressed={showHidden}
           onClick={() => setShowHidden((v) => !v)}
@@ -439,10 +497,10 @@ export function PaneView({
       {actionError && (
         <div role="alert" className="px-2 py-1 text-[11px] text-danger border-b border-border">{actionError}</div>
       )}
-      <div className="grid grid-cols-[1fr_80px_130px] px-2 py-1 text-[11px] text-muted border-b border-border">
-        <button className="text-left" onClick={() => setSortKey('name')}>Name</button>
-        <button className="text-right" onClick={() => setSortKey('size')}>Size</button>
-        <button className="text-right" onClick={() => setSortKey('mtime')}>Modified</button>
+      <div className="grid grid-cols-[minmax(0,1fr)_88px_140px] gap-2 px-3 h-7 items-center font-mono text-[12px] text-muted border-b border-border">
+        <button className="text-left pl-7" onClick={() => setSortKey('name')}>name</button>
+        <button className="text-right" onClick={() => setSortKey('size')}>size</button>
+        <button className="text-right" onClick={() => setSortKey('mtime')}>modified</button>
       </div>
       <div
         ref={scrollRef}
@@ -450,7 +508,7 @@ export function PaneView({
         aria-label={`${header} file list`}
         aria-activedescendant={activeIdx >= 0 ? `${listId}-opt-${activeIdx}` : undefined}
         tabIndex={0}
-        className="flex-1 min-h-0 overflow-auto font-mono text-[12px] outline-hidden focus-visible:ring-1 focus-visible:ring-accent"
+        className="flex-1 min-h-0 overflow-auto outline-hidden focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent"
         onScroll={(evt) => setScrollTop(evt.currentTarget.scrollTop)}
         onKeyDown={onListKeyDown}
       >
@@ -466,29 +524,33 @@ export function PaneView({
                 role="option"
                 aria-selected={isSel}
                 draggable
-                className={`grid grid-cols-[1fr_80px_130px] px-2 py-0.5 cursor-default border-l-2 ${
-                  isSel
-                    ? 'selected bg-accent border-accent text-accent-fg font-medium'
-                    : 'border-transparent hover:bg-accent/10'
+                style={{ height: ROW_H }}
+                className={`grid grid-cols-[minmax(0,1fr)_88px_140px] gap-2 items-center px-3 cursor-default border-b border-border/50 ${
+                  isSel ? 'selected bg-accent-wash text-accent-text' : 'hover:bg-surface-2'
                 }`}
                 onClick={(evt) => selectRow(e, evt)}
                 onDoubleClick={() => e.kind === 'dir' && setCwd(e.path)}
                 onDragStart={(evt) => handleDragStart(e, evt)}
               >
-                <span className="flex items-center gap-1 truncate">
-                  {e.kind === 'dir' ? <IconFolder /> : <IconFile />}
-                  {e.name}
+                <span className={`flex items-center gap-2.5 min-w-0 ${e.kind === 'dir' ? 'font-semibold' : ''}`}>
+                  <span className={`shrink-0 ${isSel || e.kind === 'dir' ? 'text-accent-text' : 'text-muted'}`}>
+                    {e.kind === 'dir' ? <IconFolder /> : <IconFile />}
+                  </span>
+                  <span className="truncate">{e.name}</span>
                 </span>
-                <span className={`text-right ${isSel ? 'text-accent-fg/80' : 'text-muted'}`}>
+                <span className={`text-right font-mono text-[12px] tabular-nums whitespace-nowrap ${isSel ? '' : 'text-muted'}`}>
                   {e.kind === 'dir' ? '' : fmtSize(e.size)}
                 </span>
-                <span className={`text-right ${isSel ? 'text-accent-fg/80' : 'text-muted'}`}>
+                <span className={`text-right font-mono text-[12px] tabular-nums whitespace-nowrap ${isSel ? '' : 'text-muted'}`}>
                   {fmtDate(e.mtime)}
                 </span>
               </div>
             );
           })}
         </div>
+      </div>
+      <div className="px-3 py-2 border-t border-border bg-surface-2 font-mono text-[12px] text-muted truncate">
+        {footer}
       </div>
       {showNewFolder && (
         <PromptModal

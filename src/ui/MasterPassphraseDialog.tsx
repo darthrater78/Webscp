@@ -60,7 +60,7 @@ export function MasterPassphraseDialog() {
           Passphrase
           <input
             type="password"
-            className="h-8 px-2 rounded-sm border border-border bg-transparent"
+            className="h-8 px-2 rounded-md border border-border bg-transparent"
             value={passphrase}
             onChange={(e) => setPassphrase(e.target.value)}
             autoComplete="off"
@@ -73,7 +73,7 @@ export function MasterPassphraseDialog() {
             Confirm passphrase
             <input
               type="password"
-              className="h-8 px-2 rounded-sm border border-border bg-transparent"
+              className="h-8 px-2 rounded-md border border-border bg-transparent"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               autoComplete="off"
@@ -93,12 +93,12 @@ export function MasterPassphraseDialog() {
         )}
 
         <div className="flex justify-end gap-2 mt-2">
-          <button type="button" className="h-8 px-3 rounded-sm border border-border" onClick={closePassphraseDialog}>
+          <button type="button" className="h-8 px-3 rounded-md border border-border" onClick={closePassphraseDialog}>
             Cancel
           </button>
           <button
             type="submit"
-            className="h-8 px-4 rounded-sm bg-accent text-accent-fg disabled:opacity-60"
+            className="h-8 px-4 rounded-md bg-accent text-accent-fg disabled:opacity-60"
             disabled={busy}
           >
             {mode === 'set' ? 'Set passphrase' : 'Unlock'}

@@ -116,14 +116,14 @@ export function PropertiesDialog({ fs, entry, onClose, onApplied }: Props) {
           <div className="flex justify-end gap-2 mt-3">
             <button
               type="button"
-              className="px-3 py-1 text-sm rounded-sm border border-border hover:bg-accent/10"
+              className="px-3 py-1 text-sm rounded-md border border-border hover:bg-accent-wash"
               onClick={onClose}
             >
               Close
             </button>
             <button
               type="button"
-              className="px-3 py-1 text-sm rounded-sm text-white bg-accent disabled:opacity-40"
+              className="px-3 py-1 text-sm rounded-md text-accent-fg bg-accent disabled:opacity-40"
               disabled={busy}
               onClick={apply}
             >
@@ -137,7 +137,7 @@ export function PropertiesDialog({ fs, entry, onClose, onApplied }: Props) {
         <div className="flex justify-end mt-2">
           <button
             type="button"
-            className="px-3 py-1 text-sm rounded-sm border border-border hover:bg-accent/10"
+            className="px-3 py-1 text-sm rounded-md border border-border hover:bg-accent-wash"
             onClick={onClose}
           >
             Close
