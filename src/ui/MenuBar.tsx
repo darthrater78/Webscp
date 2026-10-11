@@ -27,9 +27,9 @@ export function MenuBar({
   const { openConnectionManager, openSettings, canSync, openSync } = useApp();
   return (
     <div className="flex items-center gap-3 px-3 h-9 bg-surface border-b border-border select-none">
-      <span className="font-semibold">WebSCP</span>
-      {!compact && <span className="text-muted">Session: {sessionLabel}</span>}
-      <div className="ml-auto flex items-center gap-1">
+      <span className="font-semibold shrink-0">WebSCP</span>
+      {!compact && <span className="text-muted truncate">Session: {sessionLabel}</span>}
+      <div className="ml-auto flex items-center gap-1 min-w-0">
         <AccountButton
           signedIn={signedIn}
           connecting={connecting}
@@ -39,7 +39,7 @@ export function MenuBar({
         />
         {canSync && (
           <button
-            className="h-7 px-2 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text text-[13px]"
+            className="h-7 px-2 shrink-0 whitespace-nowrap rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text text-[13px]"
             title="Synchronize the two folders"
             onClick={openSync}
           >
@@ -47,14 +47,14 @@ export function MenuBar({
           </button>
         )}
         <button
-          className="h-7 px-2 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text text-[13px]"
+          className="h-7 px-2 shrink-0 whitespace-nowrap rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text text-[13px]"
           title="Saved connections"
           onClick={openConnectionManager}
         >
           Connections
         </button>
         <button
-          className="p-1 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text"
+          className="p-1 shrink-0 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text"
           title="Settings"
           aria-label="Settings"
           onClick={openSettings}
@@ -62,7 +62,7 @@ export function MenuBar({
           <IconGear />
         </button>
         <button
-          className="p-1 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text"
+          className="p-1 shrink-0 rounded-sm hover:bg-black/5 dark:hover:bg-white/10 text-text"
           title="Toggle light/dark"
           aria-label="Toggle light/dark theme"
           onClick={theme.toggle}
